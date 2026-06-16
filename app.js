@@ -1,32 +1,29 @@
 // ========== 配置 ==========
 const REPO = 'jieyijiang2333/wuqi-forum';
-// Token 拆分存放，防止 GitHub 自动检测吊销
-const _t = ['ghp_3w5PR4Hb3', '2XWJDCPYeGx', 'idr2MQtzG23g', 'L3mp'];
-const TOKEN = _t.join('');
-const API = 'https://api.github.com';
+// 通过 Cloudflare Worker 代理访问 GitHub API，Token 安全存放在服务端
+const WORKER = 'https://muddy-darkness-acbc.yokinok.workers.dev';
 const ADMIN_NICK = 'jieyijiang2333';
 
-const HEADERS = {
-    'Authorization': 'token ' + TOKEN,
-    'Accept': 'application/vnd.github.v3+json',
-    'Content-Type': 'application/json'
-};
-
-// ========== 状态 ==========
-let currentUser = null;
-let currentCategory = '全部';
-let currentPostId = null;
-
-// ========== GitHub API 封装 ==========
+// ========== GitHub API 封装（通过 Worker 代理）==========
 async function gh(method, path, body) {
-    const opts = { method, headers: HEADERS };
+    const opts = {
+        method,
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    };
     if (body) opts.body = JSON.stringify(body);
-    const res = await fetch(API + path, opts);
+    const res = await fetch(WORKER + path, opts);
     if (res.status === 204) return null;
     const data = await res.json();
     if (!res.ok) throw new Error(data.message || '请求失败');
     return data;
 }
+
+// ========== 状态 ==========
+let currentUser = null;
+let currentCategory = '全部';
+let currentPostId = null;
 
 // ========== 初始化 ==========
 function init() {
