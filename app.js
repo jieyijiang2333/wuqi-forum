@@ -2,8 +2,10 @@
 const REPO = 'jieyijiang2333/wuqi-forum';
 const WORKER = 'https://muddy-darkness-acbc.yokinok.workers.dev';
 const ADMIN_NICK = 'jieyijiang2333';
+const MUTED_ISSUE_TITLE = '[系统] 禁言名单';
+const DELETE_ISSUE_LABEL = '注销申请';
 
-// ========== API 封装（通过 Worker 代理）==========
+// ========== API 封装 ==========
 async function gh(method, path, body) {
     const opts = { method, headers: { 'Content-Type': 'application/json' } };
     if (body) opts.body = JSON.stringify(body);
@@ -13,7 +15,7 @@ async function gh(method, path, body) {
     try { return JSON.parse(text); } catch (e) { throw new Error(text || '请求失败'); }
 }
 
-// ========== 密码哈希（SHA-256）==========
+// ========== 密码哈希 ==========
 async function hashPassword(pwd) {
     const enc = new TextEncoder().encode(pwd + 'wuqi_salt_2026');
     const buf = await crypto.subtle.digest('SHA-256', enc);
@@ -24,12 +26,44 @@ async function hashPassword(pwd) {
 let currentUser = null;
 let currentCategory = '全部';
 let currentPostId = null;
+let mutedUsers = JSON.parse(localStorage.getItem('wuqi_muted') || '[]');
 
 // ========== 初始化 ==========
 function init() {
     const saved = localStorage.getItem('wuqi_user');
     if (saved) { currentUser = JSON.parse(saved); updateAuthUI(); }
+    loadMutedList();
     loadPosts();
+}
+
+// ========== 禁言名单同步 ==========
+async function loadMutedList() {
+    try {
+        const issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=系统数据&per_page=10`);
+        const mutedIssue = issues.find(i => i.title === MUTED_ISSUE_TITLE);
+        if (mutedIssue) {
+            const meta = parseMeta(mutedIssue.body);
+            mutedUsers = meta.muted || [];
+            localStorage.setItem('wuqi_muted', JSON.stringify(mutedUsers));
+        }
+    } catch (e) { console.log('加载禁言名单失败'); }
+}
+
+async function saveMutedList() {
+    try {
+        const issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=系统数据&per_page=10`);
+        const mutedIssue = issues.find(i => i.title === MUTED_ISSUE_TITLE);
+        const body = JSON.stringify({ type: 'muted_list', muted: mutedUsers, timestamp: Date.now() });
+        if (mutedIssue) {
+            await gh('PATCH', `/repos/${REPO}/issues/${mutedIssue.number}`, { body });
+        } else {
+            await gh('POST', `/repos/${REPO}/issues`, { title: MUTED_ISSUE_TITLE, body, labels: ['系统数据'] });
+        }
+    } catch (e) { alert('保存禁言名单失败'); }
+}
+
+function isMuted(nickname) {
+    return mutedUsers.includes(nickname);
 }
 
 // ========== UI ==========
@@ -42,16 +76,15 @@ function updateAuthUI() {
         userArea.style.display = 'flex';
         document.getElementById('currentUser').textContent = currentUser.nickname + (currentUser.isAdmin ? ' 👑' : '');
         newPostArea.style.display = 'block';
-        // 管理员显示管理面板入口
         let adminBtn = document.getElementById('adminEntryBtn');
         if (currentUser.isAdmin && !adminBtn) {
             adminBtn = document.createElement('button');
             adminBtn.id = 'adminEntryBtn';
-            adminBtn.className = 'btn btn-small';
-            adminBtn.style.cssText = 'background:#4CAF50;color:#fff;border:none;padding:6px 12px;border-radius:6px;margin-top:10px;width:100%;font-size:14px;cursor:pointer;';
-            adminBtn.textContent = '📋 管理面板（审核注册）';
+            adminBtn.className = 'btn';
+            adminBtn.style.cssText = 'background:#4CAF50;color:#fff;border:none;padding:10px;border-radius:8px;margin-top:10px;width:100%;font-size:14px;cursor:pointer;font-weight:600;';
+            adminBtn.textContent = '📋 管理面板';
             adminBtn.onclick = showAdminPanel;
-            userArea.parentElement.insertBefore(adminBtn, newPostArea);
+            newPostArea.parentElement.insertBefore(adminBtn, newPostArea);
         }
     } else {
         authArea.style.display = 'flex';
@@ -85,7 +118,7 @@ async function loadPosts() {
             return `<div class="post-card ${pinned ? 'pinned' : ''}" onclick="viewPost(${issue.number})">
                 <div class="post-title">${pinned ? '📌 ' : ''}${esc(issue.title)}</div>
                 <div class="post-meta">
-                    <div><span class="post-category">${esc(cat)}</span><span style="margin-left:8px">${esc(meta.author || '匿名')}</span></div>
+                    <div><span class="post-category">${esc(cat)}</span><span style="margin-left:8px">${esc(meta.author || '匿名')}${isMuted(meta.author) ? ' 🚫' : ''}</span></div>
                     <div class="post-stats"><span>👍 ${issue.reactions ? (issue.reactions['+1'] || 0) : 0}</span><span>${timeAgo(issue.created_at)}</span></div>
                 </div>
             </div>`;
@@ -93,7 +126,7 @@ async function loadPosts() {
         if (!list.innerHTML.trim()) list.innerHTML = '<div class="empty-state">当前分类暂无帖子</div>';
     } catch (e) {
         console.error(e);
-        document.getElementById('postList').innerHTML = '<div class="empty-state">⚠️ 加载失败，请刷新重试</div>';
+        document.getElementById('postList').innerHTML = '<div class="empty-state">⚠️ 加载失败</div>';
     }
 }
 
@@ -134,7 +167,7 @@ async function viewPost(number) {
                 ${comments.length === 0 ? '<div style="color:#555;font-size:13px">暂无评论</div>' :
                     comments.map(c => { const cm = parseMeta(c.body); return `<div class="comment-item"><div class="comment-header"><span class="comment-author">${esc(cm.author || '匿名')}</span><span class="comment-time">${timeAgo(c.created_at)}</span></div><div class="comment-content">${esc(cm.content || c.body)}</div></div>`; }).join('')}
             </div>`;
-        document.getElementById('commentArea').style.display = currentUser && currentUser.isApproved ? 'block' : 'none';
+        document.getElementById('commentArea').style.display = currentUser && currentUser.isApproved && !isMuted(currentUser.nickname) ? 'block' : 'none';
         window.scrollTo(0, 0);
     } catch (e) { console.error(e); alert('加载失败'); }
 }
@@ -152,7 +185,8 @@ async function likePost(number) {
 }
 
 async function submitPost() {
-    if (!currentUser || !currentUser.isApproved) return alert('请先登录已审核的账号');
+    if (!currentUser || !currentUser.isApproved) return alert('请先登录');
+    if (isMuted(currentUser.nickname)) return alert('你已被禁言，无法发帖');
     const title = document.getElementById('postTitle').value.trim();
     const content = document.getElementById('postContent').value.trim();
     const category = document.getElementById('postCategory').value;
@@ -170,13 +204,14 @@ async function submitPost() {
 
 async function submitComment() {
     if (!currentUser || !currentUser.isApproved) return alert('请先登录');
+    if (isMuted(currentUser.nickname)) return alert('你已被禁言，无法评论');
     const content = document.getElementById('commentInput').value.trim();
     if (!content) return alert('评论不能为空');
     const body = JSON.stringify({ type: 'comment', author: currentUser.nickname, content, timestamp: Date.now() });
     try { await gh('POST', `/repos/${REPO}/issues/${currentPostId}/comments`, { body }); document.getElementById('commentInput').value = ''; viewPost(currentPostId); } catch (e) { alert('评论失败'); }
 }
 
-// ========== 注册（带密码）==========
+// ========== 注册 ==========
 async function doRegister() {
     const nickname = document.getElementById('regNickname').value.trim();
     const password = document.getElementById('regPassword').value;
@@ -184,7 +219,6 @@ async function doRegister() {
     if (!nickname || nickname.length < 2) { document.getElementById('regError').textContent = '昵称至少2个字'; return; }
     if (!password || password.length < 4) { document.getElementById('regError').textContent = '密码至少4位'; return; }
     if (!reason) { document.getElementById('regError').textContent = '请填写申请理由'; return; }
-
     document.getElementById('regError').textContent = '正在提交...';
     const passwordHash = await hashPassword(password);
     const body = JSON.stringify({ type: 'register', nickname, passwordHash, reason, timestamp: Date.now() });
@@ -196,14 +230,13 @@ async function doRegister() {
     } catch (e) { document.getElementById('regError').textContent = '提交失败：' + e.message; }
 }
 
-// ========== 登录（带密码验证）==========
+// ========== 登录 ==========
 async function doLogin() {
     const nickname = document.getElementById('loginUser').value.trim();
     const password = document.getElementById('loginPass').value;
     if (!nickname) { document.getElementById('loginError').textContent = '请输入昵称'; return; }
     if (!password) { document.getElementById('loginError').textContent = '请输入密码'; return; }
 
-    // 管理员特殊处理
     if (nickname === ADMIN_NICK) {
         const adminHash = await hashPassword(password);
         const storedHash = localStorage.getItem('wuqi_admin_pwd');
@@ -220,6 +253,11 @@ async function doLogin() {
         return;
     }
 
+    if (isMuted(nickname)) {
+        document.getElementById('loginError').textContent = '该账号已被禁言';
+        return;
+    }
+
     try {
         const issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=已批准&per_page=100`);
         const found = issues.find(i => {
@@ -233,7 +271,7 @@ async function doLogin() {
             document.getElementById('loginError').textContent = '密码错误';
             return;
         }
-        currentUser = { nickname, isAdmin: false, isApproved: true };
+        currentUser = { nickname, isAdmin: false, isApproved: true, issueNumber: found.number };
         localStorage.setItem('wuqi_user', JSON.stringify(currentUser));
         updateAuthUI();
         closeModal('loginModal');
@@ -248,6 +286,34 @@ function logout() {
     if (currentPostId) goHome();
 }
 
+// ========== 注销账号 ==========
+function showDeleteAccount() {
+    if (!currentUser || currentUser.isAdmin) return alert('管理员账号不能注销');
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+async function doDeleteAccount() {
+    if (!currentUser || currentUser.isAdmin) return;
+    const password = document.getElementById('deletePass').value;
+    if (!password) { document.getElementById('deleteError').textContent = '请输入密码确认'; return; }
+    try {
+        const issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=已批准&per_page=100`);
+        const found = issues.find(i => parseMeta(i.body).nickname === currentUser.nickname);
+        if (!found) { document.getElementById('deleteError').textContent = '账号未找到'; return; }
+        const meta = parseMeta(found.body);
+        const inputHash = await hashPassword(password);
+        if (meta.passwordHash !== inputHash) {
+            document.getElementById('deleteError').textContent = '密码错误';
+            return;
+        }
+        const body = JSON.stringify({ type: 'delete_request', nickname: currentUser.nickname, userIssue: found.number, timestamp: Date.now() });
+        await gh('POST', `/repos/${REPO}/issues`, { title: `[注销申请] ${currentUser.nickname}`, body, labels: [DELETE_ISSUE_LABEL] });
+        closeModal('deleteModal');
+        alert('注销申请已提交，等待管理员审核。审核通过后账号将被注销。');
+        logout();
+    } catch (e) { document.getElementById('deleteError').textContent = '提交失败：' + e.message; }
+}
+
 // ========== 管理面板 ==========
 async function showAdminPanel() {
     if (!currentUser || !currentUser.isAdmin) return;
@@ -257,45 +323,100 @@ async function showAdminPanel() {
     document.getElementById('adminContent').innerHTML = '<div style="text-align:center;padding:40px;color:#aaa;">加载中...</div>';
 
     try {
-        const issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=注册申请&per_page=50&sort=created&direction=desc`);
-        if (!issues || issues.length === 0) {
-            document.getElementById('adminContent').innerHTML = '<div class="empty-state">暂无注册申请</div>';
-            return;
+        const [regIssues, delIssues] = await Promise.all([
+            gh('GET', `/repos/${REPO}/issues?state=open&labels=注册申请&per_page=50&sort=created&direction=desc`),
+            gh('GET', `/repos/${REPO}/issues?state=open&labels=${DELETE_ISSUE_LABEL}&per_page=50`)
+        ]);
+
+        let html = '';
+
+        // 注册审核
+        html += '<div style="color:#ffd700;font-size:16px;font-weight:600;margin:16px 0 12px;">📋 注册审核</div>';
+        if (!regIssues || regIssues.length === 0) {
+            html += '<div class="empty-state" style="padding:20px;">暂无注册申请</div>';
+        } else {
+            regIssues.forEach(issue => {
+                const meta = parseMeta(issue.body);
+                html += `<div class="post-card" style="border-left:3px solid #ff9800;" data-issue="${issue.number}" data-nickname="${esc(meta.nickname || '')}">
+                    <div class="post-title">${esc(issue.title)}</div>
+                    <div style="margin-top:8px;font-size:13px;color:#bbb;">
+                        <div>昵称：<b style="color:#fff">${esc(meta.nickname || '未知')}</b></div>
+                        <div>理由：${esc(meta.reason || '无')}</div>
+                        <div>申请时间：${timeAgo(issue.created_at)}</div>
+                    </div>
+                    <div style="margin-top:12px;display:flex;gap:8px;">
+                        <button class="btn btn-small btn-success" onclick="approveUser(this)">✅ 批准</button>
+                        <button class="btn btn-small btn-danger" onclick="rejectUser(this)">❌ 拒绝</button>
+                    </div>
+                </div>`;
+            });
         }
-        document.getElementById('adminContent').innerHTML = issues.map(issue => {
-            const meta = parseMeta(issue.body);
-            return `<div class="post-card" style="border-left:3px solid #ff9800;">
-                <div class="post-title">📋 ${esc(issue.title)}</div>
-                <div style="margin-top:8px;font-size:13px;color:#bbb;">
-                    <div>昵称：<b style="color:#fff">${esc(meta.nickname || '未知')}</b></div>
-                    <div>理由：${esc(meta.reason || '无')}</div>
-                    <div>申请时间：${timeAgo(issue.created_at)}</div>
-                </div>
-                <div style="margin-top:12px;display:flex;gap:8px;">
-                    <button class="btn btn-small btn-success" onclick="approveUser(${issue.number}, '${esc(meta.nickname || '')}')">✅ 批准</button>
-                    <button class="btn btn-small btn-danger" onclick="rejectUser(${issue.number})">❌ 拒绝</button>
-                </div>
-            </div>`;
-        }).join('');
+
+        // 注销审核
+        html += '<div style="color:#ffd700;font-size:16px;font-weight:600;margin:24px 0 12px;">🗑️ 注销审核</div>';
+        if (!delIssues || delIssues.length === 0) {
+            html += '<div class="empty-state" style="padding:20px;">暂无注销申请</div>';
+        } else {
+            delIssues.forEach(issue => {
+                const meta = parseMeta(issue.body);
+                html += `<div class="post-card" style="border-left:3px solid #e53935;" data-issue="${issue.number}" data-user-issue="${meta.userIssue || ''}">
+                    <div class="post-title">${esc(issue.title)}</div>
+                    <div style="margin-top:8px;font-size:13px;color:#bbb;">
+                        <div>昵称：<b style="color:#fff">${esc(meta.nickname || '未知')}</b></div>
+                        <div>申请时间：${timeAgo(issue.created_at)}</div>
+                    </div>
+                    <div style="margin-top:12px;display:flex;gap:8px;">
+                        <button class="btn btn-small btn-success" onclick="approveDelete(this)">✅ 批准注销</button>
+                        <button class="btn btn-small btn-danger" onclick="rejectDelete(this)">❌ 拒绝</button>
+                    </div>
+                </div>`;
+            });
+        }
+
+        // 禁言管理
+        html += '<div style="color:#ffd700;font-size:16px;font-weight:600;margin:24px 0 12px;">🚫 禁言管理</div>';
+        html += `<div style="display:flex;gap:8px;margin-bottom:12px;">
+            <input id="muteInput" placeholder="输入要禁言的昵称" style="flex:1;padding:10px;border-radius:8px;border:1px solid rgba(255,215,0,0.15);background:#13111d;color:#e8e6f0;font-size:14px;outline:none;" />
+            <button class="btn btn-small btn-danger" onclick="muteUser()" style="padding:10px 16px;border-radius:8px;font-weight:600;">禁言</button>
+        </div>`;
+        if (mutedUsers.length === 0) {
+            html += '<div class="empty-state" style="padding:20px;">暂无禁言用户</div>';
+        } else {
+            mutedUsers.forEach(nick => {
+                html += `<div class="post-card" style="border-left:3px solid #9c27b0;display:flex;justify-content:space-between;align-items:center;">
+                    <span style="color:#e8e6f0;">🚫 ${esc(nick)}</span>
+                    <button class="btn btn-small btn-success" onclick="unmuteUser('${esc(nick)}')">解除禁言</button>
+                </div>`;
+            });
+        }
+
+        document.getElementById('adminContent').innerHTML = html;
     } catch (e) {
         console.error(e);
         document.getElementById('adminContent').innerHTML = '<div class="empty-state">⚠️ 加载失败</div>';
     }
 }
 
-async function approveUser(issueNumber, nickname) {
+// 管理员操作：批准注册
+async function approveUser(btn) {
+    const card = btn.closest('.post-card');
+    const issueNumber = parseInt(card.dataset.issue);
+    const nickname = card.dataset.nickname;
     try {
         const issue = await gh('GET', `/repos/${REPO}/issues/${issueNumber}`);
         const labels = issue.labels.map(l => l.name).filter(n => n !== '注册申请');
         labels.push('已批准');
         await gh('PATCH', `/repos/${REPO}/issues/${issueNumber}`, { labels });
-        alert(`已批准用户「${nickname}」，TA 现在可以用昵称+密码登录了。`);
+        alert(`已批准「${nickname}」`);
         showAdminPanel();
     } catch (e) { alert('操作失败：' + e.message); }
 }
 
-async function rejectUser(issueNumber) {
-    if (!confirm('确定拒绝并关闭该申请？')) return;
+// 管理员操作：拒绝注册
+async function rejectUser(btn) {
+    const card = btn.closest('.post-card');
+    const issueNumber = parseInt(card.dataset.issue);
+    if (!confirm('确定拒绝该注册申请？')) return;
     try {
         await gh('PATCH', `/repos/${REPO}/issues/${issueNumber}`, { state: 'closed' });
         alert('已拒绝');
@@ -303,7 +424,60 @@ async function rejectUser(issueNumber) {
     } catch (e) { alert('操作失败：' + e.message); }
 }
 
-// ========== 管理员操作 ==========
+// 管理员操作：批准注销
+async function approveDelete(btn) {
+    const card = btn.closest('.post-card');
+    const issueNumber = parseInt(card.dataset.issue);
+    const userIssue = parseInt(card.dataset.userIssue);
+    if (!confirm('确定批准注销？该用户的注册信息将被关闭。')) return;
+    try {
+        // 关闭用户注册 Issue
+        if (userIssue) {
+            await gh('PATCH', `/repos/${REPO}/issues/${userIssue}`, { state: 'closed' });
+        }
+        // 关闭注销申请 Issue
+        await gh('PATCH', `/repos/${REPO}/issues/${issueNumber}`, { state: 'closed' });
+        alert('注销已批准');
+        showAdminPanel();
+    } catch (e) { alert('操作失败：' + e.message); }
+}
+
+// 管理员操作：拒绝注销
+async function rejectDelete(btn) {
+    const card = btn.closest('.post-card');
+    const issueNumber = parseInt(card.dataset.issue);
+    if (!confirm('确定拒绝该注销申请？')) return;
+    try {
+        await gh('PATCH', `/repos/${REPO}/issues/${issueNumber}`, { state: 'closed' });
+        alert('已拒绝');
+        showAdminPanel();
+    } catch (e) { alert('操作失败：' + e.message); }
+}
+
+// 管理员操作：禁言
+async function muteUser() {
+    const input = document.getElementById('muteInput');
+    const nickname = input.value.trim();
+    if (!nickname) return alert('请输入昵称');
+    if (nickname === ADMIN_NICK) return alert('不能禁言管理员');
+    if (isMuted(nickname)) return alert('该用户已被禁言');
+    mutedUsers.push(nickname);
+    await saveMutedList();
+    input.value = '';
+    alert(`已禁言「${nickname}」`);
+    showAdminPanel();
+}
+
+// 管理员操作：解除禁言
+async function unmuteUser(nickname) {
+    if (!confirm(`确定解除「${nickname}」的禁言？`)) return;
+    mutedUsers = mutedUsers.filter(n => n !== nickname);
+    await saveMutedList();
+    alert(`已解除「${nickname}」的禁言`);
+    showAdminPanel();
+}
+
+// ========== 管理员帖子操作 ==========
 async function togglePin(number) {
     try {
         const issue = await gh('GET', `/repos/${REPO}/issues/${number}`);
@@ -325,6 +499,7 @@ function showLogin() { document.getElementById('loginModal').style.display = 'fl
 function showRegister() { document.getElementById('registerModal').style.display = 'flex'; }
 function showNewPost() {
     if (!currentUser || !currentUser.isApproved) return showLogin();
+    if (isMuted(currentUser.nickname)) return alert('你已被禁言，无法发帖');
     document.getElementById('newPostModal').style.display = 'flex';
 }
 function closeModal(id) { document.getElementById(id).style.display = 'none'; }
