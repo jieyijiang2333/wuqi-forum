@@ -26,6 +26,8 @@
         .categories::-webkit-scrollbar { display: none; }
         .category-btn { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.2); background: transparent; color: #8a849a; font-size: 13px; cursor: pointer; transition: all 0.2s; }
         .category-btn.active { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
+        .admin-btn-area { padding: 0 16px; margin-bottom: 10px; }
+        #adminEntryBtn { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #4CAF50; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
         .new-post-area { padding: 0 16px; }
         .new-post-area .btn { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ffd700; background: rgba(255,215,0,0.08); color: #ffd700; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 1px; }
         .new-post-area .btn:hover { background: rgba(255,215,0,0.15); }
@@ -106,6 +108,9 @@
         <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
     </div>
 
+    <!-- 管理员按钮区域 -->
+    <div class="admin-btn-area" id="adminBtnArea"></div>
+
     <div class="new-post-area" id="newPostArea" style="display:none;">
         <button class="btn" onclick="showNewPost()">发表新帖</button>
     </div>
@@ -114,6 +119,7 @@
 
     <div class="footer">无期迷途角色扮演社区 · 玩家自发</div>
 
+    <!-- 帖子详情页 -->
     <div class="detail-page" id="page-post">
         <button class="back-btn" onclick="goHome()">← 返回</button>
         <div id="postDetail"></div>
@@ -123,12 +129,14 @@
         </div>
     </div>
 
+    <!-- 管理面板 -->
     <div class="admin-page" id="page-admin">
-        <button class="back-btn" onclick="goHome()" style="display:inline-block;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,215,0,0.2);background:transparent;color:#ffd700;font-size:13px;cursor:pointer;margin-bottom:16px;">← 返回</button>
+        <button class="back-btn" onclick="goHome()">← 返回</button>
         <h2>📋 管理面板</h2>
         <div id="adminContent"></div>
     </div>
 
+    <!-- 登录弹窗 -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <h3>登录</h3>
@@ -140,6 +148,7 @@
         </div>
     </div>
 
+    <!-- 注册弹窗 -->
     <div class="modal-overlay" id="registerModal">
         <div class="modal">
             <h3>申请注册</h3>
@@ -152,6 +161,7 @@
         </div>
     </div>
 
+    <!-- 发帖弹窗 -->
     <div class="modal-overlay" id="newPostModal">
         <div class="modal">
             <h3>发表新帖</h3>
@@ -169,6 +179,7 @@
         </div>
     </div>
 
+    <!-- 注销弹窗 -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
             <h3>🗑️ 注销账号</h3>
@@ -180,6 +191,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=3"></script>
+    <script src="app.js?v=5"></script>
 </body>
 </html>
