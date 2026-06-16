@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>无期迷途 · 角色扮演社区</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -71,7 +74,6 @@
         .modal .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
         .modal .switch-link { text-align: center; margin-top: 12px; font-size: 13px; color: #6a6480; }
         .modal .switch-link a { color: #ffd700; text-decoration: none; cursor: pointer; }
-        .muted-label { color: #e53935; font-size: 11px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -112,7 +114,6 @@
 
     <div class="footer">无期迷途角色扮演社区 · 玩家自发</div>
 
-    <!-- 帖子详情页 -->
     <div class="detail-page" id="page-post">
         <button class="back-btn" onclick="goHome()">← 返回</button>
         <div id="postDetail"></div>
@@ -122,14 +123,12 @@
         </div>
     </div>
 
-    <!-- 管理面板 -->
     <div class="admin-page" id="page-admin">
         <button class="back-btn" onclick="goHome()" style="display:inline-block;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,215,0,0.2);background:transparent;color:#ffd700;font-size:13px;cursor:pointer;margin-bottom:16px;">← 返回</button>
         <h2>📋 管理面板</h2>
         <div id="adminContent"></div>
     </div>
 
-    <!-- 登录弹窗 -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <h3>登录</h3>
@@ -141,7 +140,6 @@
         </div>
     </div>
 
-    <!-- 注册弹窗 -->
     <div class="modal-overlay" id="registerModal">
         <div class="modal">
             <h3>申请注册</h3>
@@ -154,7 +152,6 @@
         </div>
     </div>
 
-    <!-- 发帖弹窗 -->
     <div class="modal-overlay" id="newPostModal">
         <div class="modal">
             <h3>发表新帖</h3>
@@ -172,7 +169,6 @@
         </div>
     </div>
 
-    <!-- 注销弹窗 -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
             <h3>🗑️ 注销账号</h3>
@@ -184,6 +180,6 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script src="app.js?v=3"></script>
 </body>
 </html>
