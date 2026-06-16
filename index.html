@@ -2,108 +2,181 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>无期迷途 · 角色扮演社区</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', Arial, sans-serif; background: #0d0b14; color: #e8e6f0; min-height: 100vh; }
+        .header { background: linear-gradient(135deg, #1a1528 0%, #2d1f3d 100%); padding: 20px 16px 14px; text-align: center; border-bottom: 1px solid rgba(255,215,0,0.15); }
+        .header h1 { font-size: 18px; font-weight: 700; color: #ffd700; letter-spacing: 2px; }
+        .header-sub { font-size: 12px; color: #8a849a; margin-top: 4px; }
+        .auth-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #13111d; border-bottom: 1px solid rgba(255,215,0,0.08); }
+        .auth-bar .btn { padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.3); background: transparent; color: #ffd700; font-size: 13px; cursor: pointer; }
+        .auth-bar .btn:hover { background: rgba(255,215,0,0.1); }
+        .user-bar { display: none; justify-content: space-between; align-items: center; padding: 10px 16px; background: #13111d; border-bottom: 1px solid rgba(255,215,0,0.08); }
+        .user-bar .nickname { color: #ffd700; font-size: 14px; font-weight: 600; }
+        .user-bar .btn { padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: #aaa; font-size: 13px; cursor: pointer; }
+        .categories { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .categories::-webkit-scrollbar { display: none; }
+        .category-btn { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.2); background: transparent; color: #8a849a; font-size: 13px; cursor: pointer; transition: all 0.2s; }
+        .category-btn.active { background: rgba(255,215,0,0.15); border-color: #ffd700; color: #ffd700; }
+        .new-post-area { padding: 0 16px; }
+        .new-post-area .btn { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ffd700; background: rgba(255,215,0,0.08); color: #ffd700; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 1px; }
+        .new-post-area .btn:hover { background: rgba(255,215,0,0.15); }
+        .post-list { padding: 12px 16px 80px; }
+        .post-card { background: #1a1828; border-radius: 12px; padding: 16px; margin-bottom: 10px; border: 1px solid rgba(255,215,0,0.06); cursor: pointer; transition: transform 0.15s; }
+        .post-card:active { transform: scale(0.98); }
+        .post-card.pinned { border-left: 3px solid #ffd700; background: linear-gradient(135deg, #1a1828 0%, #2a2538 100%); }
+        .post-title { font-size: 15px; font-weight: 600; color: #f0eef8; line-height: 1.4; }
+        .post-meta { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; font-size: 12px; color: #6a6480; }
+        .post-category { background: rgba(255,215,0,0.1); color: #ffd700; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
+        .post-stats { display: flex; gap: 10px; }
+        .empty-state { text-align: center; padding: 60px 20px; color: #5a5470; font-size: 14px; }
+        .footer { text-align: center; padding: 20px; color: #3a3650; font-size: 12px; }
+        /* 帖子详情 */
+        .detail-page { display: none; padding: 16px; padding-bottom: 80px; }
+        .detail-page .back-btn { display: inline-block; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.2); background: transparent; color: #ffd700; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
+        .detail-page .title { font-size: 20px; font-weight: 700; color: #ffd700; line-height: 1.4; }
+        .detail-page .meta { margin-top: 10px; font-size: 12px; color: #6a6480; display: flex; gap: 12px; flex-wrap: wrap; }
+        .detail-page .content { margin-top: 20px; font-size: 15px; line-height: 1.8; color: #d8d4e8; white-space: pre-wrap; word-break: break-word; }
+        .post-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .like-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.3); background: transparent; color: #ffd700; font-size: 14px; cursor: pointer; }
+        .like-btn:hover { background: rgba(255,215,0,0.1); }
+        .btn-small { padding: 6px 14px; border-radius: 6px; border: none; font-size: 13px; cursor: pointer; }
+        .btn-success { background: #4CAF50; color: #fff; }
+        .btn-danger { background: #e53935; color: #fff; }
+        .comments-section { margin-top: 30px; border-top: 1px solid rgba(255,215,0,0.1); padding-top: 20px; }
+        .comments-title { font-size: 15px; font-weight: 600; color: #ffd700; margin-bottom: 16px; }
+        .comment-item { background: #151320; border-radius: 10px; padding: 12px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.04); }
+        .comment-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+        .comment-author { font-size: 13px; font-weight: 600; color: #c8c4d8; }
+        .comment-time { font-size: 11px; color: #5a5470; }
+        .comment-content { font-size: 14px; color: #b8b4c8; line-height: 1.5; }
+        .comment-input-area { margin-top: 16px; display: none; }
+        .comment-input-area textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.15); background: #151320; color: #e8e6f0; font-size: 14px; resize: none; height: 80px; outline: none; }
+        .comment-input-area textarea:focus { border-color: rgba(255,215,0,0.4); }
+        .comment-input-area .btn { margin-top: 8px; padding: 8px 20px; border-radius: 8px; border: none; background: #ffd700; color: #0d0b14; font-size: 14px; font-weight: 600; cursor: pointer; }
+        /* 管理面板 */
+        .admin-page { display: none; padding: 16px; padding-bottom: 80px; }
+        .admin-page h2 { color: #ffd700; font-size: 18px; margin-bottom: 16px; }
+        /* 弹窗 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+        .modal { background: #1a1828; border-radius: 16px; padding: 24px; width: 100%; max-width: 360px; border: 1px solid rgba(255,215,0,0.15); }
+        .modal h3 { color: #ffd700; font-size: 17px; margin-bottom: 16px; text-align: center; }
+        .modal input, .modal textarea, .modal select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.15); background: #13111d; color: #e8e6f0; font-size: 14px; margin-bottom: 12px; outline: none; }
+        .modal input:focus, .modal textarea:focus { border-color: rgba(255,215,0,0.4); }
+        .modal textarea { height: 100px; resize: none; }
+        .modal select { appearance: none; cursor: pointer; }
+        .modal .btn-primary { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ffd700; color: #0d0b14; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+        .modal .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
+        .modal .switch-link { text-align: center; margin-top: 12px; font-size: 13px; color: #6a6480; }
+        .modal .switch-link a { color: #ffd700; text-decoration: none; cursor: pointer; }
+        .modal .close-btn { position: absolute; top: 12px; right: 16px; background: none; border: none; color: #6a6480; font-size: 20px; cursor: pointer; }
+    </style>
 </head>
 <body>
-    <header class="nav-bar">
-        <div class="nav-left" onclick="goHome()">
-            <div class="logo">无</div>
-            <span>无期迷途 · 角色扮演社区</span>
-        </div>
-        <div class="nav-right" id="authArea">
-            <button class="btn btn-outline" onclick="showLogin()">登录</button>
-            <button class="btn btn-primary" onclick="showRegister()">申请注册</button>
-        </div>
-        <div class="nav-right" id="userArea" style="display:none;">
-            <span id="currentUser" class="user-name"></span>
-            <button class="btn btn-outline" onclick="logout()">退出</button>
-        </div>
-    </header>
+    <!-- Header -->
+    <div class="header">
+        <h1>无期迷途 · 角色扮演社区</h1>
+        <div class="header-sub">无期迷途角色扮演社区 · 玩家自发</div>
+    </div>
 
-    <main class="container">
-        <!-- 帖子列表 -->
-        <div id="page-home">
-            <div class="category-bar">
-                <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
-                <button class="category-btn" data-cat="角色扮演" onclick="filterCategory('角色扮演')">角色扮演</button>
-                <button class="category-btn" data-cat="剧情讨论" onclick="filterCategory('剧情讨论')">剧情讨论</button>
-                <button class="category-btn" data-cat="同人创作" onclick="filterCategory('同人创作')">同人创作</button>
-                <button class="category-btn" data-cat="游戏攻略" onclick="filterCategory('游戏攻略')">游戏攻略</button>
-                <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
-            </div>
-            <div id="newPostArea" class="new-post-area" style="display:none;">
-                <button class="btn btn-primary" onclick="showNewPost()">发表新帖</button>
-            </div>
-            <div id="postList" class="post-list">
-                <div class="empty-state">加载中...</div>
-            </div>
+    <!-- 未登录 -->
+    <div class="auth-bar" id="authArea">
+        <span style="color:#6a6480;font-size:13px">登录后参与讨论</span>
+        <div style="display:flex;gap:8px;">
+            <button class="btn" onclick="showLogin()">登录</button>
+            <button class="btn" onclick="showRegister()">注册</button>
         </div>
+    </div>
 
-        <!-- 帖子详情 -->
-        <div id="page-post" style="display:none;">
-            <button class="btn btn-outline" onclick="goHome()">← 返回列表</button>
-            <div id="postDetail" class="post-detail"></div>
-            <div id="commentArea" class="comment-area" style="display:none;">
-                <textarea id="commentInput" placeholder="写下你的评论..." rows="3"></textarea>
-                <button class="btn btn-primary" onclick="submitComment()">发表评论</button>
-            </div>
-        </div>
+    <!-- 已登录 -->
+    <div class="user-bar" id="userArea">
+        <span class="nickname" id="currentUser"></span>
+        <button class="btn" onclick="logout()">退出</button>
+    </div>
 
-        <!-- 管理面板 -->
-        <div id="page-admin" style="display:none;">
-            <button class="btn btn-outline" onclick="goHome()">← 返回列表</button>
-            <h3 class="admin-title">📋 注册审核</h3>
-            <div id="adminList" class="post-list"></div>
+    <!-- 分类 -->
+    <div class="categories">
+        <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
+        <button class="category-btn" data-cat="角色扮演" onclick="filterCategory('角色扮演')">角色扮演</button>
+        <button class="category-btn" data-cat="剧情讨论" onclick="filterCategory('剧情讨论')">剧情讨论</button>
+        <button class="category-btn" data-cat="同人创作" onclick="filterCategory('同人创作')">同人创作</button>
+        <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
+    </div>
+
+    <!-- 发帖入口 -->
+    <div class="new-post-area" id="newPostArea" style="display:none;">
+        <button class="btn" onclick="showNewPost()">发表新帖</button>
+    </div>
+
+    <!-- 帖子列表 -->
+    <div class="post-list" id="postList">
+        <div class="empty-state">加载中...</div>
+    </div>
+
+    <div class="footer">无期迷途角色扮演社区 · 玩家自发</div>
+
+    <!-- 帖子详情页 -->
+    <div class="detail-page" id="page-post">
+        <button class="back-btn" onclick="goHome()">← 返回</button>
+        <div id="postDetail"></div>
+        <div class="comment-input-area" id="commentArea">
+            <textarea id="commentInput" placeholder="写下你的评论..."></textarea>
+            <button class="btn-primary" onclick="submitComment()" style="background:#ffd700;border:none;padding:10px;border-radius:8px;font-weight:600;color:#0d0b14;width:100%;font-size:14px;cursor:pointer;margin-top:8px;">发表评论</button>
         </div>
-    </main>
+    </div>
+
+    <!-- 管理面板 -->
+    <div class="admin-page" id="page-admin">
+        <button class="back-btn" onclick="goHome()" style="display:inline-block;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,215,0,0.2);background:transparent;color:#ffd700;font-size:13px;cursor:pointer;margin-bottom:16px;">← 返回</button>
+        <h2>📋 注册审核</h2>
+        <div id="adminContent"></div>
+    </div>
 
     <!-- 登录弹窗 -->
-    <div id="loginModal" class="modal" style="display:none;">
-        <div class="modal-content">
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
             <h3>登录</h3>
-            <input type="text" id="loginUser" placeholder="你的注册昵称">
-            <div id="loginError" class="error-msg"></div>
-            <button class="btn btn-primary btn-block" onclick="doLogin()">登录</button>
-            <p class="switch-text">还没注册？<a onclick="showRegister()">去申请</a></p>
-            <button class="btn-close" onclick="closeModal('loginModal')">✕</button>
+            <input id="loginUser" placeholder="昵称" />
+            <input id="loginPass" type="password" placeholder="密码" />
+            <button class="btn-primary" onclick="doLogin()">登录</button>
+            <div class="error" id="loginError"></div>
+            <div class="switch-link">没有账号？<a onclick="closeModal('loginModal');showRegister()">去注册</a></div>
         </div>
     </div>
 
     <!-- 注册弹窗 -->
-    <div id="registerModal" class="modal" style="display:none;">
-        <div class="modal-content">
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal">
             <h3>申请注册</h3>
-            <input type="text" id="regNickname" placeholder="你想用的昵称（2-12个字）">
-            <textarea id="regReason" placeholder="申请理由（为什么想加入？）" rows="3"></textarea>
-            <div id="regError" class="error-msg"></div>
-            <button class="btn btn-primary btn-block" onclick="doRegister()">提交申请</button>
-            <p class="switch-text">已有账号？<a onclick="showLogin()">去登录</a></p>
-            <button class="btn-close" onclick="closeModal('registerModal')">✕</button>
+            <input id="regNickname" placeholder="昵称（至少2个字）" />
+            <input id="regPassword" type="password" placeholder="设置密码（至少4位）" />
+            <textarea id="regReason" placeholder="申请理由（你是谁/为什么想加入）"></textarea>
+            <button class="btn-primary" onclick="doRegister()">提交申请</button>
+            <div class="error" id="regError"></div>
+            <div class="switch-link">已有账号？<a onclick="closeModal('registerModal');showLogin()">去登录</a></div>
         </div>
     </div>
 
-    <!-- 新帖弹窗 -->
-    <div id="newPostModal" class="modal" style="display:none;">
-        <div class="modal-content">
+    <!-- 发帖弹窗 -->
+    <div class="modal-overlay" id="newPostModal">
+        <div class="modal">
             <h3>发表新帖</h3>
-            <input type="text" id="postTitle" placeholder="帖子标题">
+            <input id="postTitle" placeholder="标题" />
             <select id="postCategory">
                 <option value="角色扮演">角色扮演</option>
                 <option value="剧情讨论">剧情讨论</option>
                 <option value="同人创作">同人创作</option>
-                <option value="游戏攻略">游戏攻略</option>
-                <option value="灌水闲聊">灌水闲聊</option>
+                <option value="灌水闲聊" selected>灌水闲聊</option>
             </select>
-            <textarea id="postContent" placeholder="帖子内容..." rows="6"></textarea>
-            <div id="postError" class="error-msg"></div>
-            <button class="btn btn-primary btn-block" onclick="submitPost()">发布</button>
-            <button class="btn-close" onclick="closeModal('newPostModal')">✕</button>
+            <textarea id="postContent" placeholder="内容..."></textarea>
+            <button class="btn-primary" onclick="submitPost()">发布</button>
+            <div class="error" id="postError"></div>
+            <div class="switch-link"><a onclick="closeModal('newPostModal')">取消</a></div>
         </div>
     </div>
 
-    <footer class="footer">无期迷途角色扮演社区 · 玩家自发</footer>
     <script src="app.js"></script>
 </body>
 </html>
