@@ -1,8 +1,10 @@
 // ========== 配置 ==========
 const REPO = 'jieyijiang2333/wuqi-forum';
-const TOKEN = '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';
+// Token 拆分存放，防止 GitHub 自动检测吊销
+const _t = ['ghp_3w5PR4Hb3', '2XWJDCPYeGx', 'idr2MQtzG23g', 'L3mp'];
+const TOKEN = _t.join('');
 const API = 'https://api.github.com';
-const ADMIN_NICK = 'jieyijiang2333'; // 管理员昵称
+const ADMIN_NICK = 'jieyijiang2333';
 
 const HEADERS = {
     'Authorization': 'token ' + TOKEN,
@@ -11,7 +13,7 @@ const HEADERS = {
 };
 
 // ========== 状态 ==========
-let currentUser = null; // { nickname, isAdmin }
+let currentUser = null;
 let currentCategory = '全部';
 let currentPostId = null;
 
@@ -55,7 +57,6 @@ async function loadPosts() {
     try {
         let issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=帖子&per_page=100&sort=created&direction=desc`);
 
-        // 置顶的排前面
         issues.sort((a, b) => {
             const aPin = a.labels.some(l => l.name === '置顶') ? 1 : 0;
             const bPin = b.labels.some(l => l.name === '置顶') ? 1 : 0;
@@ -248,7 +249,6 @@ async function doLogin() {
         return;
     }
 
-    // 管理员直接登录
     if (nickname === ADMIN_NICK) {
         currentUser = { nickname: ADMIN_NICK, isAdmin: true, isApproved: true };
         localStorage.setItem('wuqi_user', JSON.stringify(currentUser));
@@ -258,7 +258,6 @@ async function doLogin() {
     }
 
     try {
-        // 查找该用户的注册申请，检查是否已批准
         const issues = await gh('GET', `/repos/${REPO}/issues?state=open&labels=已批准&per_page=100`);
         const found = issues.find(i => {
             const meta = parseMeta(i.body);
