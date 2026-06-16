@@ -1,61 +1,126 @@
-// ========== Supabase 配置 ==========
+// ========== Supabase 配置（纯 fetch 版，不依赖任何 CDN） ==========
 const SUPABASE_URL = 'https://pmywsdyewpeyvwdacmgt.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBteXdzZHlld3BleXd2ZGFjbWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTM4NDYsImV4cCI6MjA5NzE2OTg0Nn0.OmZ0O9NPNKlbixFvl-RTh7sV3E1MMwkY4KjKR3zdGq0';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBteXdzZHlld3BleXd2ZGFjbWd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE1OTM4NDYsImV4cCI6MjA5NzE2OTg0Nn0.OmZ0O9NPNKlbixFvl-RTh7sV3E1MMwkY4KjKR3zdGq0';
 
-let supabase;
-try {
-    supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-} catch (e) {
-    console.error('Supabase 初始化失败:', e);
-    document.addEventListener('DOMContentLoaded', function() {
-        document.getElementById('postList').innerHTML = '<div class="empty-state">⚠️ 连接失败，请刷新页面重试</div>';
+// ========== Supabase REST API 封装 ==========
+async function sbQuery(table, params = '') {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${params}`, {
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (currentUser?._token || SUPABASE_KEY),
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+async function sbInsert(table, data) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (currentUser?._token || SUPABASE_KEY),
+            'Content-Type': 'application/json',
+            'Prefer': 'return=representation'
+        },
+        body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+}
+
+async function sbUpdate(table, data, filter) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`, {
+        method: 'PATCH',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (currentUser?._token || SUPABASE_KEY),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error(await res.text());
+}
+
+async function sbDelete(table, filter) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filter}`, {
+        method: 'DELETE',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + (currentUser?._token || SUPABASE_KEY),
+            'Content-Type': 'application/json'
+        }
+    });
+    if (!res.ok) throw new Error(await res.text());
+}
+
+// Auth: 注册
+async function sbSignUp(email, password, nickname) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password, data: { nickname } })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || '注册失败');
+    return data;
+}
+
+// Auth: 登录
+async function sbSignIn(email, password) {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || '登录失败');
+    return data;
+}
+
+// Auth: 登出
+async function sbSignOut(token) {
+    await fetch(`${SUPABASE_URL}/auth/v1/logout`, {
+        method: 'POST',
+        headers: {
+            'apikey': SUPABASE_KEY,
+            'Authorization': 'Bearer ' + token,
+            'Content-Type': 'application/json'
+        }
     });
 }
 
 // ========== 状态 ==========
-let currentUser = null;
+let currentUser = null; // { id, email, nickname, _token }
 let isAdmin = false;
 let currentCategory = '全部';
 let currentPostId = null;
 
 // ========== 初始化 ==========
-async function init() {
-    if (!supabase) return;
-    try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (session) {
-            currentUser = session.user;
-            await checkAdmin();
-            updateAuthUI();
-        }
-        await loadPosts();
-    } catch (e) {
-        console.error('初始化失败:', e);
-        document.getElementById('postList').innerHTML = '<div class="empty-state">⚠️ 网络连接超时，请检查网络后刷新</div>';
+function init() {
+    // 从 localStorage 恢复登录状态
+    const saved = localStorage.getItem('wuqi_user');
+    if (saved) {
+        currentUser = JSON.parse(saved);
+        checkAdmin();
+        updateAuthUI();
     }
-}
-
-// 监听登录状态变化
-if (supabase) {
-    supabase.auth.onAuthStateChange(async (event, session) => {
-        if (event === 'SIGNED_IN' && session) {
-            currentUser = session.user;
-            await checkAdmin();
-            updateAuthUI();
-        } else if (event === 'SIGNED_OUT') {
-            currentUser = null;
-            isAdmin = false;
-            updateAuthUI();
-        }
-    });
+    loadPosts();
 }
 
 // 检查是否是管理员
 async function checkAdmin() {
-    if (!currentUser || !supabase) { isAdmin = false; return; }
+    if (!currentUser) { isAdmin = false; return; }
     try {
-        const { data } = await supabase.from('admins').select('user_id').eq('user_id', currentUser.id).single();
-        isAdmin = !!data;
+        const data = await sbQuery('admins', `user_id=eq.${currentUser.id}&select=user_id`);
+        isAdmin = data.length > 0;
     } catch (e) {
         isAdmin = false;
     }
@@ -63,11 +128,10 @@ async function checkAdmin() {
 
 // ========== UI更新 ==========
 function updateAuthUI() {
-    const nickname = currentUser?.user_metadata?.nickname || currentUser?.email?.split('@')[0] || '';
     if (currentUser) {
         document.getElementById('authArea').style.display = 'none';
         document.getElementById('userArea').style.display = 'flex';
-        document.getElementById('currentUser').textContent = nickname;
+        document.getElementById('currentUser').textContent = currentUser.nickname;
         document.getElementById('newPostArea').style.display = 'block';
     } else {
         document.getElementById('authArea').style.display = 'flex';
@@ -78,19 +142,13 @@ function updateAuthUI() {
 
 // ========== 帖子操作 ==========
 async function loadPosts() {
-    if (!supabase) return;
     try {
-        let query = supabase.from('posts').select('*');
+        let params = 'order=is_pinned.desc,created_at.desc&select=*';
         if (currentCategory !== '全部') {
-            query = query.eq('category', currentCategory);
+            params += `&category=eq.${encodeURIComponent(currentCategory)}`;
         }
-        const { data: posts, error } = await query.order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
+        const posts = await sbQuery('posts', params);
         const list = document.getElementById('postList');
-        if (error) {
-            console.error('加载帖子失败:', error);
-            list.innerHTML = '<div class="empty-state">⚠️ 加载失败：' + esc(error.message) + '</div>';
-            return;
-        }
         if (!posts || posts.length === 0) {
             list.innerHTML = '<div class="empty-state">暂无帖子，快来发表第一篇吧！</div>';
             return;
@@ -111,8 +169,8 @@ async function loadPosts() {
             </div>
         `).join('');
     } catch (e) {
-        console.error('网络错误:', e);
-        document.getElementById('postList').innerHTML = '<div class="empty-state">⚠️ 网络连接超时，请检查网络后刷新</div>';
+        console.error('加载帖子失败:', e);
+        document.getElementById('postList').innerHTML = '<div class="empty-state">⚠️ 加载失败，稍后刷新重试</div>';
     }
 }
 
@@ -125,13 +183,12 @@ function filterCategory(cat) {
 }
 
 async function viewPost(id) {
-    if (!supabase) return;
     currentPostId = id;
     try {
-        const { data: post, error } = await supabase.from('posts').select('*').eq('id', id).single();
-        if (error || !post) { alert('帖子不存在'); return; }
-
-        const { data: comments } = await supabase.from('comments').select('*').eq('post_id', id).order('created_at', { ascending: true });
+        const posts = await sbQuery('posts', `id=eq.${id}&select=*`);
+        if (!posts || posts.length === 0) { alert('帖子不存在'); return; }
+        const post = posts[0];
+        const comments = await sbQuery('comments', `post_id=eq.${id}&order=created_at.asc&select=*`);
 
         document.getElementById('page-home').style.display = 'none';
         document.getElementById('page-post').style.display = 'block';
@@ -175,7 +232,7 @@ async function viewPost(id) {
         window.scrollTo(0, 0);
     } catch (e) {
         console.error('加载帖子详情失败:', e);
-        alert('网络连接超时，请重试');
+        alert('网络超时，请重试');
     }
 }
 
@@ -187,75 +244,68 @@ function goHome() {
 }
 
 async function likePost(id) {
-    if (!supabase) return;
     try {
-        const { data: post } = await supabase.from('posts').select('likes').eq('id', id).single();
-        if (post) {
-            await supabase.from('posts').update({ likes: post.likes + 1 }).eq('id', id);
+        const posts = await sbQuery('posts', `id=eq.${id}&select=likes`);
+        if (posts && posts.length > 0) {
+            await sbUpdate('posts', { likes: posts[0].likes + 1 }, `id=eq.${id}`);
             viewPost(id);
         }
     } catch (e) { alert('操作失败，请重试'); }
 }
 
 async function togglePin(id) {
-    if (!supabase) return;
     try {
-        const { data: post } = await supabase.from('posts').select('is_pinned').eq('id', id).single();
-        if (post) {
-            await supabase.from('posts').update({ is_pinned: !post.is_pinned }).eq('id', id);
+        const posts = await sbQuery('posts', `id=eq.${id}&select=is_pinned`);
+        if (posts && posts.length > 0) {
+            await sbUpdate('posts', { is_pinned: !posts[0].is_pinned }, `id=eq.${id}`);
             viewPost(id);
         }
     } catch (e) { alert('操作失败，请重试'); }
 }
 
 async function deletePost(id) {
-    if (!supabase) return;
     if (!confirm('确定删除这篇帖子？')) return;
     try {
-        await supabase.from('comments').delete().eq('post_id', id);
-        await supabase.from('posts').delete().eq('id', id);
+        await sbDelete('comments', `post_id=eq.${id}`);
+        await sbDelete('posts', `id=eq.${id}`);
         goHome();
     } catch (e) { alert('删除失败，请重试'); }
 }
 
 async function submitComment() {
-    if (!supabase) return alert('连接未就绪，请刷新');
     const content = document.getElementById('commentInput').value.trim();
     if (!content) return alert('评论不能为空');
-    const nickname = currentUser?.user_metadata?.nickname || currentUser?.email?.split('@')[0] || '匿名';
     try {
-        const { error } = await supabase.from('comments').insert({
+        await sbInsert('comments', {
             post_id: currentPostId,
-            author_name: nickname,
+            author_name: currentUser.nickname,
             author_id: currentUser.id,
             content: content
         });
-        if (error) { alert('评论失败：' + error.message); return; }
         document.getElementById('commentInput').value = '';
         viewPost(currentPostId);
-    } catch (e) { alert('网络超时，请重试'); }
+    } catch (e) { alert('评论失败，请重试'); }
 }
 
 async function submitPost() {
-    if (!supabase) return alert('连接未就绪，请刷新');
     const title = document.getElementById('postTitle').value.trim();
     const content = document.getElementById('postContent').value.trim();
     const category = document.getElementById('postCategory').value;
     if (!title || !content) { document.getElementById('postError').textContent = '请填写标题和内容'; return; }
-    const nickname = currentUser?.user_metadata?.nickname || currentUser?.email?.split('@')[0] || '匿名';
     try {
-        const { error } = await supabase.from('posts').insert({
+        await sbInsert('posts', {
             title, content, category,
-            author_name: nickname,
+            author_name: currentUser.nickname,
             author_id: currentUser.id
         });
-        if (error) { document.getElementById('postError').textContent = '发布失败：' + error.message; return; }
         closeModal('newPostModal');
         document.getElementById('postTitle').value = '';
         document.getElementById('postContent').value = '';
         document.getElementById('postError').textContent = '';
         loadPosts();
-    } catch (e) { alert('网络超时，请重试'); }
+    } catch (e) {
+        document.getElementById('postError').textContent = '发布失败，请重试';
+    }
 }
 
 // ========== 弹窗控制 ==========
@@ -269,7 +319,6 @@ function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
 // ========== 注册 ==========
 async function doRegister() {
-    if (!supabase) return alert('连接未就绪，请刷新');
     const nickname = document.getElementById('regUser').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPass').value;
@@ -277,65 +326,68 @@ async function doRegister() {
         document.getElementById('regError').textContent = '请填写完整信息';
         return;
     }
-    const fakeEmail = `${nickname}@wuqi-forum.local`;
     try {
-        const { data, error } = await supabase.auth.signUp({
-            email: fakeEmail,
-            password: password,
-            options: { data: { nickname: nickname } }
-        });
-        if (error) {
-            document.getElementById('regError').textContent = error.message;
-            return;
-        }
+        const data = await sbSignUp(email, password, nickname);
         if (data.user) {
+            // 注册成功，自动登录
+            const signInData = await sbSignIn(email, password);
+            currentUser = {
+                id: signInData.user.id,
+                email: signInData.user.email,
+                nickname: nickname,
+                _token: signInData.access_token
+            };
+            localStorage.setItem('wuqi_user', JSON.stringify(currentUser));
+            await checkAdmin();
+            updateAuthUI();
             closeModal('registerModal');
             document.getElementById('regError').textContent = '';
             alert('注册成功！');
-        } else {
-            document.getElementById('regError').textContent = '注册成功，请登录';
         }
     } catch (e) {
-        document.getElementById('regError').textContent = '网络超时，请重试';
+        document.getElementById('regError').textContent = e.message;
     }
 }
 
 // ========== 登录 ==========
 async function doLogin() {
-    if (!supabase) return alert('连接未就绪，请刷新');
     const username = document.getElementById('loginUser').value.trim();
     const password = document.getElementById('loginPass').value;
     if (!username || !password) {
         document.getElementById('loginError').textContent = '请填写用户名和密码';
         return;
     }
-    const fakeEmail = `${username}@wuqi-forum.local`;
+    // 用用户名查找对应的邮箱
+    // 由于 Supabase 注册用的是真实邮箱，这里用昵称作为用户名
+    // 用户需要用注册时的邮箱登录
+    const email = username.includes('@') ? username : username + '@wuqi-forum.local';
     try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: fakeEmail,
-            password: password
-        });
-        if (error) {
-            document.getElementById('loginError').textContent = '登录失败，请检查用户名和密码';
-            return;
-        }
-        currentUser = data.user;
+        const data = await sbSignIn(email, password);
+        currentUser = {
+            id: data.user.id,
+            email: data.user.email,
+            nickname: data.user.user_metadata?.nickname || username,
+            _token: data.access_token
+        };
+        localStorage.setItem('wuqi_user', JSON.stringify(currentUser));
         await checkAdmin();
         updateAuthUI();
         closeModal('loginModal');
         document.getElementById('loginError').textContent = '';
         if (currentPostId) viewPost(currentPostId);
     } catch (e) {
-        document.getElementById('loginError').textContent = '网络超时，请重试';
+        document.getElementById('loginError').textContent = '登录失败，请检查用户名和密码';
     }
 }
 
 // ========== 退出 ==========
 async function logout() {
-    if (!supabase) return;
-    await supabase.auth.signOut();
+    if (currentUser?._token) {
+        try { await sbSignOut(currentUser._token); } catch (e) {}
+    }
     currentUser = null;
     isAdmin = false;
+    localStorage.removeItem('wuqi_user');
     updateAuthUI();
     if (currentPostId) goHome();
 }
