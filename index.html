@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无期迷途 · 角色扮演社区</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="nav-bar">
+        <div class="nav-left" onclick="goHome()">
+            <div class="logo">无</div>
+            <span>无期迷途 · 角色扮演社区</span>
+        </div>
+        <div class="nav-right" id="authArea">
+            <button class="btn btn-outline" onclick="showLogin()">登录</button>
+            <button class="btn btn-primary" onclick="showRegister()">申请注册</button>
+        </div>
+        <div class="nav-right" id="userArea" style="display:none;">
+            <span id="currentUser" class="user-name"></span>
+            <button class="btn btn-outline" onclick="logout()">退出</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- 帖子列表 -->
+        <div id="page-home">
+            <div class="category-bar">
+                <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
+                <button class="category-btn" data-cat="角色扮演" onclick="filterCategory('角色扮演')">角色扮演</button>
+                <button class="category-btn" data-cat="剧情讨论" onclick="filterCategory('剧情讨论')">剧情讨论</button>
+                <button class="category-btn" data-cat="同人创作" onclick="filterCategory('同人创作')">同人创作</button>
+                <button class="category-btn" data-cat="游戏攻略" onclick="filterCategory('游戏攻略')">游戏攻略</button>
+                <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
+            </div>
+            <div id="newPostArea" class="new-post-area" style="display:none;">
+                <button class="btn btn-primary" onclick="showNewPost()">发表新帖</button>
+            </div>
+            <div id="postList" class="post-list">
+                <div class="empty-state">加载中...</div>
+            </div>
+        </div>
+
+        <!-- 帖子详情 -->
+        <div id="page-post" style="display:none;">
+            <button class="btn btn-outline" onclick="goHome()">← 返回列表</button>
+            <div id="postDetail" class="post-detail"></div>
+            <div id="commentArea" class="comment-area" style="display:none;">
+                <textarea id="commentInput" placeholder="写下你的评论..." rows="3"></textarea>
+                <button class="btn btn-primary" onclick="submitComment()">发表评论</button>
+            </div>
+        </div>
+
+        <!-- 管理面板 -->
+        <div id="page-admin" style="display:none;">
+            <button class="btn btn-outline" onclick="goHome()">← 返回列表</button>
+            <h3 class="admin-title">📋 注册审核</h3>
+            <div id="adminList" class="post-list"></div>
+        </div>
+    </main>
+
+    <!-- 登录弹窗 -->
+    <div id="loginModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>登录</h3>
+            <input type="text" id="loginUser" placeholder="你的注册昵称">
+            <div id="loginError" class="error-msg"></div>
+            <button class="btn btn-primary btn-block" onclick="doLogin()">登录</button>
+            <p class="switch-text">还没注册？<a onclick="showRegister()">去申请</a></p>
+            <button class="btn-close" onclick="closeModal('loginModal')">✕</button>
+        </div>
+    </div>
+
+    <!-- 注册弹窗 -->
+    <div id="registerModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>申请注册</h3>
+            <input type="text" id="regNickname" placeholder="你想用的昵称（2-12个字）">
+            <textarea id="regReason" placeholder="申请理由（为什么想加入？）" rows="3"></textarea>
+            <div id="regError" class="error-msg"></div>
+            <button class="btn btn-primary btn-block" onclick="doRegister()">提交申请</button>
+            <p class="switch-text">已有账号？<a onclick="showLogin()">去登录</a></p>
+            <button class="btn-close" onclick="closeModal('registerModal')">✕</button>
+        </div>
+    </div>
+
+    <!-- 新帖弹窗 -->
+    <div id="newPostModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <h3>发表新帖</h3>
+            <input type="text" id="postTitle" placeholder="帖子标题">
+            <select id="postCategory">
+                <option value="角色扮演">角色扮演</option>
+                <option value="剧情讨论">剧情讨论</option>
+                <option value="同人创作">同人创作</option>
+                <option value="游戏攻略">游戏攻略</option>
+                <option value="灌水闲聊">灌水闲聊</option>
+            </select>
+            <textarea id="postContent" placeholder="帖子内容..." rows="6"></textarea>
+            <div id="postError" class="error-msg"></div>
+            <button class="btn btn-primary btn-block" onclick="submitPost()">发布</button>
+            <button class="btn-close" onclick="closeModal('newPostModal')">✕</button>
+        </div>
+    </div>
+
+    <footer class="footer">无期迷途角色扮演社区 · 玩家自发</footer>
+    <script src="app.js"></script>
+</body>
+</html>
