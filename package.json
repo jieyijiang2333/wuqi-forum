@@ -1,0 +1,13 @@
+{
+  "name": "wuqi-forum",
+  "version": "1.0.0",
+  "description": "无期迷途角色扮演社区",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^9.4.3"
+  }
+}
