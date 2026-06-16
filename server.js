@@ -7,7 +7,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // 初始化数据库
-const db = new Database(path.join(__dirname, 'data', 'forum.db'));
+const db = new Database(path.join(__dirname, 'db.sqlite'));
 db.pragma('journal_mode = WAL');
 
 // 建表
@@ -51,7 +51,7 @@ if (!adminExists) {
 }
 
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(__dirname));
 
 // 注册
 app.post('/api/register', (req, res) => {
@@ -138,7 +138,7 @@ app.delete('/api/admin/posts/:id', (req, res) => {
 });
 
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => console.log(`服务器运行在端口 ${PORT}`));
