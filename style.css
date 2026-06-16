@@ -216,6 +216,7 @@ body {
     margin-bottom: 16px;
     display: flex;
     gap: 16px;
+    flex-wrap: wrap;
 }
 
 .post-detail .content {
@@ -395,7 +396,6 @@ body {
 
 .btn-close:hover { color: #c9aa71; }
 
-/* 空状态 */
 .empty-state {
     text-align: center;
     padding: 40px;
@@ -403,7 +403,6 @@ body {
     font-size: 14px;
 }
 
-/* 页脚 */
 .footer {
     text-align: center;
     padding: 20px;
@@ -412,7 +411,6 @@ body {
     margin-top: 40px;
 }
 
-/* 管理按钮 */
 .admin-btn {
     background: rgba(231, 76, 60, 0.1);
     border: 1px solid #e74c3c;

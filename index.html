@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- 导航栏 -->
     <header class="nav-bar">
         <div class="nav-left" onclick="goHome()">
             <div class="logo">无</div>
@@ -23,9 +22,7 @@
         </div>
     </header>
 
-    <!-- 主容器 -->
     <main class="container">
-        <!-- 帖子列表页 -->
         <div id="page-home">
             <div class="category-bar">
                 <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
@@ -43,7 +40,6 @@
             </div>
         </div>
 
-        <!-- 帖子详情页 -->
         <div id="page-post" style="display:none;">
             <button class="btn btn-outline" onclick="goHome()">← 返回列表</button>
             <div id="postDetail" class="post-detail"></div>
@@ -54,7 +50,6 @@
         </div>
     </main>
 
-    <!-- 登录弹窗 -->
     <div id="loginModal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>登录</h3>
@@ -67,11 +62,11 @@
         </div>
     </div>
 
-    <!-- 注册弹窗 -->
     <div id="registerModal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>注册</h3>
             <input type="text" id="regUser" placeholder="用户名（2-12个字）">
+            <input type="email" id="regEmail" placeholder="邮箱">
             <input type="password" id="regPass" placeholder="密码（至少6位）">
             <div id="regError" class="error-msg"></div>
             <button class="btn btn-primary btn-block" onclick="doRegister()">注册</button>
@@ -80,7 +75,6 @@
         </div>
     </div>
 
-    <!-- 新帖弹窗 -->
     <div id="newPostModal" class="modal" style="display:none;">
         <div class="modal-content">
             <h3>发表新帖</h3>
@@ -100,6 +94,7 @@
     </div>
 
     <footer class="footer">无期迷途角色扮演社区 · 玩家自发</footer>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js"></script>
 </body>
 </html>
