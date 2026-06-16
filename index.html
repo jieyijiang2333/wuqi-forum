@@ -21,7 +21,6 @@
         .user-bar .right-btns { display: flex; gap: 6px; align-items: center; }
         .user-bar .btn { padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: #aaa; font-size: 13px; cursor: pointer; }
         .btn-danger-outline { border-color: rgba(229,57,53,0.4) !important; color: #e53935 !important; }
-        .btn-danger-outline:hover { background: rgba(229,57,53,0.1) !important; }
         .categories { display: flex; gap: 8px; padding: 12px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         .categories::-webkit-scrollbar { display: none; }
         .category-btn { flex-shrink: 0; padding: 6px 16px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.2); background: transparent; color: #8a849a; font-size: 13px; cursor: pointer; transition: all 0.2s; }
@@ -29,8 +28,7 @@
         .admin-btn-area { padding: 0 16px; margin-bottom: 10px; }
         #adminEntryBtn { width: 100%; padding: 10px; border-radius: 8px; border: none; background: #4CAF50; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
         .new-post-area { padding: 0 16px; }
-        .new-post-area .btn { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ffd700; background: rgba(255,215,0,0.08); color: #ffd700; font-size: 15px; font-weight: 600; cursor: pointer; letter-spacing: 1px; }
-        .new-post-area .btn:hover { background: rgba(255,215,0,0.15); }
+        .new-post-area .btn { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #ffd700; background: rgba(255,215,0,0.08); color: #ffd700; font-size: 15px; font-weight: 600; cursor: pointer; }
         .post-list { padding: 12px 16px 80px; }
         .post-card { background: #1a1828; border-radius: 12px; padding: 16px; margin-bottom: 10px; border: 1px solid rgba(255,215,0,0.06); cursor: pointer; transition: transform 0.15s; }
         .post-card:active { transform: scale(0.98); }
@@ -42,13 +40,12 @@
         .empty-state { text-align: center; padding: 60px 20px; color: #5a5470; font-size: 14px; }
         .footer { text-align: center; padding: 20px; color: #3a3650; font-size: 12px; }
         .detail-page { display: none; padding: 16px; padding-bottom: 80px; }
-        .detail-page .back-btn { display: inline-block; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.2); background: transparent; color: #ffd700; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
-        .detail-page .title { font-size: 20px; font-weight: 700; color: #ffd700; line-height: 1.4; }
-        .detail-page .meta { margin-top: 10px; font-size: 12px; color: #6a6480; display: flex; gap: 12px; flex-wrap: wrap; }
-        .detail-page .content { margin-top: 20px; font-size: 15px; line-height: 1.8; color: #d8d4e8; white-space: pre-wrap; word-break: break-word; }
+        .back-btn { display: inline-block; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.2); background: transparent; color: #ffd700; font-size: 13px; cursor: pointer; margin-bottom: 16px; }
+        .detail-title { font-size: 20px; font-weight: 700; color: #ffd700; line-height: 1.4; }
+        .detail-meta { margin-top: 10px; font-size: 12px; color: #6a6480; display: flex; gap: 12px; flex-wrap: wrap; }
+        .detail-content { margin-top: 20px; font-size: 15px; line-height: 1.8; color: #d8d4e8; white-space: pre-wrap; word-break: break-word; }
         .post-actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
         .like-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid rgba(255,215,0,0.3); background: transparent; color: #ffd700; font-size: 14px; cursor: pointer; }
-        .like-btn:hover { background: rgba(255,215,0,0.1); }
         .btn-small { padding: 6px 14px; border-radius: 6px; border: none; font-size: 13px; cursor: pointer; }
         .btn-success { background: #4CAF50; color: #fff; }
         .btn-danger { background: #e53935; color: #fff; }
@@ -61,21 +58,18 @@
         .comment-content { font-size: 14px; color: #b8b4c8; line-height: 1.5; }
         .comment-input-area { margin-top: 16px; display: none; }
         .comment-input-area textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,215,0,0.15); background: #151320; color: #e8e6f0; font-size: 14px; resize: none; height: 80px; outline: none; }
-        .comment-input-area textarea:focus { border-color: rgba(255,215,0,0.4); }
-        .comment-input-area .btn { margin-top: 8px; padding: 8px 20px; border-radius: 8px; border: none; background: #ffd700; color: #0d0b14; font-size: 14px; font-weight: 600; cursor: pointer; }
         .admin-page { display: none; padding: 16px; padding-bottom: 80px; }
         .admin-page h2 { color: #ffd700; font-size: 18px; margin-bottom: 16px; }
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
         .modal { background: #1a1828; border-radius: 16px; padding: 24px; width: 100%; max-width: 360px; border: 1px solid rgba(255,215,0,0.15); }
         .modal h3 { color: #ffd700; font-size: 17px; margin-bottom: 16px; text-align: center; }
         .modal input, .modal textarea, .modal select { width: 100%; padding: 10px 12px; border-radius: 8px; border: 1px solid rgba(255,215,0,0.15); background: #13111d; color: #e8e6f0; font-size: 14px; margin-bottom: 12px; outline: none; }
-        .modal input:focus, .modal textarea:focus { border-color: rgba(255,215,0,0.4); }
         .modal textarea { height: 100px; resize: none; }
         .modal select { appearance: none; cursor: pointer; }
-        .modal .btn-primary { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ffd700; color: #0d0b14; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
-        .modal .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
-        .modal .switch-link { text-align: center; margin-top: 12px; font-size: 13px; color: #6a6480; }
-        .modal .switch-link a { color: #ffd700; text-decoration: none; cursor: pointer; }
+        .btn-primary { width: 100%; padding: 12px; border-radius: 8px; border: none; background: #ffd700; color: #0d0b14; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; }
+        .error { color: #ff6b6b; font-size: 12px; margin-top: 8px; text-align: center; min-height: 18px; }
+        .switch-link { text-align: center; margin-top: 12px; font-size: 13px; color: #6a6480; }
+        .switch-link a { color: #ffd700; text-decoration: none; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -100,26 +94,24 @@
         </div>
     </div>
 
-    <div class="categories">
-        <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
-        <button class="category-btn" data-cat="角色扮演" onclick="filterCategory('角色扮演')">角色扮演</button>
-        <button class="category-btn" data-cat="剧情讨论" onclick="filterCategory('剧情讨论')">剧情讨论</button>
-        <button class="category-btn" data-cat="同人创作" onclick="filterCategory('同人创作')">同人创作</button>
-        <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
+    <!-- ========== 首页（帖子列表）========== -->
+    <div id="page-home">
+        <div class="categories">
+            <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
+            <button class="category-btn" data-cat="角色扮演" onclick="filterCategory('角色扮演')">角色扮演</button>
+            <button class="category-btn" data-cat="剧情讨论" onclick="filterCategory('剧情讨论')">剧情讨论</button>
+            <button class="category-btn" data-cat="同人创作" onclick="filterCategory('同人创作')">同人创作</button>
+            <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
+        </div>
+        <div class="admin-btn-area" id="adminBtnArea"></div>
+        <div class="new-post-area" id="newPostArea" style="display:none;">
+            <button class="btn" onclick="showNewPost()">发表新帖</button>
+        </div>
+        <div class="post-list" id="postList"><div class="empty-state">加载中...</div></div>
+        <div class="footer">无期迷途角色扮演社区 · 玩家自发</div>
     </div>
 
-    <!-- 管理员按钮区域 -->
-    <div class="admin-btn-area" id="adminBtnArea"></div>
-
-    <div class="new-post-area" id="newPostArea" style="display:none;">
-        <button class="btn" onclick="showNewPost()">发表新帖</button>
-    </div>
-
-    <div class="post-list" id="postList"><div class="empty-state">加载中...</div></div>
-
-    <div class="footer">无期迷途角色扮演社区 · 玩家自发</div>
-
-    <!-- 帖子详情页 -->
+    <!-- ========== 帖子详情页 ========== -->
     <div class="detail-page" id="page-post">
         <button class="back-btn" onclick="goHome()">← 返回</button>
         <div id="postDetail"></div>
@@ -129,14 +121,14 @@
         </div>
     </div>
 
-    <!-- 管理面板 -->
+    <!-- ========== 管理面板 ========== -->
     <div class="admin-page" id="page-admin">
         <button class="back-btn" onclick="goHome()">← 返回</button>
         <h2>📋 管理面板</h2>
         <div id="adminContent"></div>
     </div>
 
-    <!-- 登录弹窗 -->
+    <!-- ========== 弹窗 ========== -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <h3>登录</h3>
@@ -148,7 +140,6 @@
         </div>
     </div>
 
-    <!-- 注册弹窗 -->
     <div class="modal-overlay" id="registerModal">
         <div class="modal">
             <h3>申请注册</h3>
@@ -161,7 +152,6 @@
         </div>
     </div>
 
-    <!-- 发帖弹窗 -->
     <div class="modal-overlay" id="newPostModal">
         <div class="modal">
             <h3>发表新帖</h3>
@@ -179,11 +169,10 @@
         </div>
     </div>
 
-    <!-- 注销弹窗 -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
-            <h3>🗑️ 注销账号</h3>
-            <p style="color:#aaa;font-size:13px;text-align:center;margin-bottom:16px;">注销申请将提交给管理员审核<br/>审核通过后账号将被永久关闭</p>
+            <h3>注销账号</h3>
+            <p style="color:#aaa;font-size:13px;text-align:center;margin-bottom:16px;">注销申请将提交给管理员审核</p>
             <input id="deletePass" type="password" placeholder="输入密码确认身份" />
             <button class="btn-primary" style="background:#e53935;" onclick="doDeleteAccount()">提交注销申请</button>
             <div class="error" id="deleteError"></div>
@@ -191,6 +180,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=5"></script>
+    <script src="app.js?v=6"></script>
 </body>
 </html>
