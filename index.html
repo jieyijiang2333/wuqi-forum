@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>无期迷途 · 角色扮演社区</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:-apple-system,'PingFang SC','Helvetica Neue',Arial,sans-serif;background:#0d0b14;color:#e8e6f0;min-height:100vh}
+        .header{background:linear-gradient(135deg,#1a1528 0%,#2d1f3d 100%);padding:20px 16px 14px;text-align:center;border-bottom:1px solid rgba(255,215,0,.15)}
+        .header h1{font-size:18px;font-weight:700;color:#ffd700;letter-spacing:2px}
+        .header-sub{font-size:12px;color:#8a849a;margin-top:4px}
+        .auth-bar{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;background:#13111d;border-bottom:1px solid rgba(255,215,0,.08)}
+        .auth-bar .btn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,215,0,.3);background:transparent;color:#ffd700;font-size:13px;cursor:pointer}
+        .user-bar{display:none;justify-content:space-between;align-items:center;padding:10px 16px;background:#13111d;border-bottom:1px solid rgba(255,215,0,.08)}
+        .user-bar .nickname{color:#ffd700;font-size:14px;font-weight:600}
+        .user-bar .right-btns{display:flex;gap:6px;align-items:center}
+        .user-bar .btn{padding:6px 14px;border-radius:6px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#aaa;font-size:13px;cursor:pointer}
+        .btn-danger-outline{border-color:rgba(229,57,53,.4)!important;color:#e53935!important}
+        .categories{display:flex;gap:8px;padding:12px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch}
+        .categories::-webkit-scrollbar{display:none}
+        .category-btn{flex-shrink:0;padding:6px 16px;border-radius:20px;border:1px solid rgba(255,215,0,.2);background:transparent;color:#8a849a;font-size:13px;cursor:pointer}
+        .category-btn.active{background:rgba(255,215,0,.15);border-color:#ffd700;color:#ffd700}
+        .admin-btn-area{padding:0 16px;margin-bottom:10px}
+        #adminEntryBtn{width:100%;padding:10px;border-radius:8px;border:none;background:#4CAF50;color:#fff;font-size:14px;font-weight:600;cursor:pointer}
+        .new-post-area{padding:0 16px}
+        .new-post-area .btn{width:100%;padding:12px;border-radius:10px;border:1px solid #ffd700;background:rgba(255,215,0,.08);color:#ffd700;font-size:15px;font-weight:600;cursor:pointer}
+        .post-list{padding:12px 16px 80px}
+        .post-card{background:#1a1828;border-radius:12px;padding:16px;margin-bottom:10px;border:1px solid rgba(255,215,0,.06);cursor:pointer}
+        .post-card.pinned{border-left:3px solid #ffd700;background:linear-gradient(135deg,#1a1828 0%,#2a2538 100%)}
+        .post-title{font-size:15px;font-weight:600;color:#f0eef8;line-height:1.4}
+        .post-meta{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:12px;color:#6a6480}
+        .post-category{background:rgba(255,215,0,.1);color:#ffd700;padding:2px 8px;border-radius:10px;font-size:11px}
+        .post-stats{display:flex;gap:10px}
+        .empty-state{text-align:center;padding:60px 20px;color:#5a5470;font-size:14px}
+        .footer{text-align:center;padding:20px;color:#3a3650;font-size:12px}
+        .detail-page{display:none;padding:16px;padding-bottom:80px}
+        .back-btn{display:inline-block;padding:8px 16px;border-radius:8px;border:1px solid rgba(255,215,0,.2);background:transparent;color:#ffd700;font-size:13px;cursor:pointer;margin-bottom:16px}
+        .detail-title{font-size:20px;font-weight:700;color:#ffd700;line-height:1.4}
+        .detail-meta{margin-top:10px;font-size:12px;color:#6a6480;display:flex;gap:12px;flex-wrap:wrap}
+        .detail-content{margin-top:20px;font-size:15px;line-height:1.8;color:#d8d4e8;white-space:pre-wrap;word-break:break-word}
+        .post-actions{margin-top:20px;display:flex;gap:10px;flex-wrap:wrap}
+        .like-btn{padding:8px 20px;border-radius:20px;border:1px solid rgba(255,215,0,.3);background:transparent;color:#ffd700;font-size:14px;cursor:pointer}
+        .btn-small{padding:6px 14px;border-radius:6px;border:none;font-size:13px;cursor:pointer}
+        .btn-success{background:#4CAF50;color:#fff}
+        .btn-danger{background:#e53935;color:#fff}
+        .comments-section{margin-top:30px;border-top:1px solid rgba(255,215,0,.1);padding-top:20px}
+        .comments-title{font-size:15px;font-weight:600;color:#ffd700;margin-bottom:16px}
+        .comment-item{background:#151320;border-radius:10px;padding:12px;margin-bottom:8px;border:1px solid rgba(255,255,255,.04)}
+        .comment-header{display:flex;justify-content:space-between;margin-bottom:6px}
+        .comment-author{font-size:13px;font-weight:600;color:#c8c4d8}
+        .comment-time{font-size:11px;color:#5a5470}
+        .comment-content{font-size:14px;color:#b8b4c8;line-height:1.5}
+        .comment-input-area{margin-top:16px;display:none}
+        .comment-input-area textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,215,0,.15);background:#151320;color:#e8e6f0;font-size:14px;resize:none;height:80px;outline:none}
+        .admin-page{display:none;padding:16px;padding-bottom:80px}
+        .admin-page h2{color:#ffd700;font-size:18px;margin-bottom:16px}
+        .admin-tabs{display:flex;gap:6px;margin-bottom:16px;overflow-x:auto}
+        .admin-tab{flex-shrink:0;padding:8px 14px;border-radius:8px;border:1px solid rgba(255,215,0,.2);background:transparent;color:#8a849a;font-size:13px;cursor:pointer}
+        .admin-tab.active{background:rgba(255,215,0,.15);border-color:#ffd700;color:#ffd700}
+        .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.8);z-index:100;justify-content:center;align-items:center;padding:20px}
+        .modal{background:#1a1828;border-radius:16px;padding:24px;width:100%;max-width:360px;border:1px solid rgba(255,215,0,.15)}
+        .modal h3{color:#ffd700;font-size:17px;margin-bottom:16px;text-align:center}
+        .modal input,.modal textarea,.modal select{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,215,0,.15);background:#13111d;color:#e8e6f0;font-size:14px;margin-bottom:12px;outline:none}
+        .modal textarea{height:100px;resize:none}
+        .modal select{appearance:none;cursor:pointer}
+        .btn-primary{width:100%;padding:12px;border-radius:8px;border:none;background:#ffd700;color:#0d0b14;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px}
+        .error{color:#ff6b6b;font-size:12px;margin-top:8px;text-align:center;min-height:18px}
+        .switch-link{text-align:center;margin-top:12px;font-size:13px;color:#6a6480}
+        .switch-link a{color:#ffd700;text-decoration:none;cursor:pointer}
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>无期迷途 · 角色扮演社区</h1>
+        <div class="header-sub">无期迷途角色扮演社区 · 玩家自发</div>
+    </div>
+    <div class="auth-bar" id="authArea">
+        <span style="color:#6a6480;font-size:13px">登录后参与讨论</span>
+        <div style="display:flex;gap:8px"><button class="btn" onclick="showLogin()">登录</button><button class="btn" onclick="showRegister()">注册</button></div>
+    </div>
+    <div class="user-bar" id="userArea">
+        <span class="nickname" id="currentUser"></span>
+        <div class="right-btns"><button class="btn btn-danger-outline" onclick="showDeleteAccount()">注销</button><button class="btn" onclick="logout()">退出</button></div>
+    </div>
+    <div id="page-home">
+        <div class="categories">
+            <button class="category-btn active" data-cat="全部" onclick="filterCategory('全部')">全部</button>
+            <button class="category-btn" data-cat="角色扮演" onclick="filterCategory('角色扮演')">角色扮演</button>
+            <button class="category-btn" data-cat="剧情讨论" onclick="filterCategory('剧情讨论')">剧情讨论</button>
+            <button class="category-btn" data-cat="同人创作" onclick="filterCategory('同人创作')">同人创作</button>
+            <button class="category-btn" data-cat="灌水闲聊" onclick="filterCategory('灌水闲聊')">灌水闲聊</button>
+        </div>
+        <div class="admin-btn-area" id="adminBtnArea"></div>
+        <div class="new-post-area" id="newPostArea" style="display:none"><button class="btn" onclick="showNewPost()">发表新帖</button></div>
+        <div class="post-list" id="postList"><div class="empty-state">加载中...</div></div>
+        <div class="footer">无期迷途角色扮演社区 · 玩家自发</div>
+    </div>
+    <div class="detail-page" id="page-post">
+        <button class="back-btn" onclick="goHome()">← 返回</button>
+        <div id="postDetail"></div>
+        <div class="comment-input-area" id="commentArea">
+            <textarea id="commentInput" placeholder="写下你的评论..."></textarea>
+            <button onclick="submitComment()" style="background:#ffd700;border:none;padding:10px;border-radius:8px;font-weight:600;color:#0d0b14;width:100%;font-size:14px;cursor:pointer;margin-top:8px">发表评论</button>
+        </div>
+    </div>
+    <div class="admin-page" id="page-admin">
+        <button class="back-btn" onclick="goHome()">← 返回</button>
+        <h2>📋 管理面板</h2>
+        <div id="adminContent"></div>
+    </div>
+    <div class="modal-overlay" id="loginModal"><div class="modal"><h3>登录</h3><input id="loginUser" placeholder="昵称"/><input id="loginPass" type="password" placeholder="密码"/><button class="btn-primary" onclick="doLogin()">登录</button><div class="error" id="loginError"></div><div class="switch-link">没有账号？<a onclick="closeModal('loginModal');showRegister()">去注册</a></div></div></div>
+    <div class="modal-overlay" id="registerModal"><div class="modal"><h3>申请注册</h3><input id="regNickname" placeholder="昵称（至少2个字）"/><input id="regPassword" type="password" placeholder="设置密码（至少4位）"/><textarea id="regReason" placeholder="申请理由"></textarea><button class="btn-primary" onclick="doRegister()">提交申请</button><div class="error" id="regError"></div><div class="switch-link">已有账号？<a onclick="closeModal('registerModal');showLogin()">去登录</a></div></div></div>
+    <div class="modal-overlay" id="newPostModal"><div class="modal"><h3>发表新帖</h3><input id="postTitle" placeholder="标题"/><select id="postCategory"><option value="角色扮演">角色扮演</option><option value="剧情讨论">剧情讨论</option><option value="同人创作">同人创作</option><option value="灌水闲聊" selected>灌水闲聊</option></select><textarea id="postContent" placeholder="内容..."></textarea><button class="btn-primary" onclick="submitPost()">发布</button><div class="error" id="postError"></div><div class="switch-link"><a onclick="closeModal('newPostModal')">取消</a></div></div></div>
+    <div class="modal-overlay" id="deleteModal"><div class="modal"><h3>注销账号</h3><p style="color:#aaa;font-size:13px;text-align:center;margin-bottom:16px">注销申请将提交给管理员审核</p><input id="deletePass" type="password" placeholder="输入密码确认身份"/><button class="btn-primary" style="background:#e53935" onclick="doDeleteAccount()">提交注销申请</button><div class="error" id="deleteError"></div><div class="switch-link"><a onclick="closeModal('deleteModal')">取消</a></div></div></div>
+
+<script>
+var REPO='jieyijiang2333/wuqi-forum',WORKER='https://muddy-darkness-acbc.yokinok.workers.dev',ADMIN_NICK='jieyijiang2333';
+async function gh(m,p,b){var o={method:m,headers:{}};if(b)o.body=JSON.stringify(b);var r=await fetch(WORKER+p,o);if(r.status===204)return null;var t=await r.text();try{return JSON.parse(t)}catch(e){throw new Error(t||'请求失败')}}
+async function hashPassword(p){var e=new TextEncoder().encode(p+'wuqi_salt_2026'),b=await crypto.subtle.digest('SHA-256',e);return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')}
+var currentUser=null,currentCategory='全部',currentPostId=null,mutedUsers=JSON.parse(localStorage.getItem('wuqi_muted')||'[]');
+function init(){var s=localStorage.getItem('wuqi_user');if(s)try{currentUser=JSON.parse(s)}catch(e){currentUser=null}loadMutedList();updateAuthUI();loadPosts()}
+async function loadMutedList(){try{var i=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=系统数据&per_page=10');for(var j=0;j<i.length;j++)if(i[j].title==='[系统] 禁言名单'){var m=parseMeta(i[j].body);mutedUsers=m.muted||[];localStorage.setItem('wuqi_muted',JSON.stringify(mutedUsers));return}}catch(e){}}
+async function saveMutedList(){try{var i=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=系统数据&per_page=10'),t=null;for(var j=0;j<i.length;j++)if(i[j].title==='[系统] 禁言名单'){t=i[j];break}var bd=JSON.stringify({type:'muted_list',muted:mutedUsers,timestamp:Date.now()});if(t)await gh('PATCH','/repos/'+REPO+'/issues/'+t.number,{body:bd});else await gh('POST','/repos/'+REPO+'/issues',{title:'[系统] 禁言名单',body:bd,labels:['系统数据']})}catch(e){alert('保存失败')}}
+function isMuted(n){return mutedUsers.indexOf(n)!==-1}
+function updateAuthUI(){if(currentUser){document.getElementById('authArea').style.display='none';document.getElementById('userArea').style.display='flex';document.getElementById('currentUser').textContent=currentUser.nickname+(currentUser.isAdmin?' 👑':'');document.getElementById('newPostArea').style.display='block';var b=document.getElementById('adminEntryBtn');if(currentUser.isAdmin&&!b){b=document.createElement('button');b.id='adminEntryBtn';b.textContent='📋 管理面板';b.onclick=function(){showAdminPanel()};document.getElementById('adminBtnArea').appendChild(b)}}else{document.getElementById('authArea').style.display='flex';document.getElementById('userArea').style.display='none';document.getElementById('newPostArea').style.display='none';var a=document.getElementById('adminEntryBtn');if(a)a.remove()}}
+async function loadPosts(){try{var i=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=帖子&per_page=100&sort=created&direction=desc'),l=document.getElementById('postList');if(!i||i.length===0){l.innerHTML='<div class="empty-state">暂无帖子，快来发表第一篇吧！</div>';return}i.sort(function(a,b){var ap=a.labels.some(function(x){return x.name==='置顶'})?1:0,bp=b.labels.some(function(x){return x.name==='置顶'})?1:0;if(bp!==ap)return bp-ap;return new Date(b.created_at)-new Date(a.created_at)});l.innerHTML=i.map(function(is){var m=parseMeta(is.body),p=is.labels.some(function(x){return x.name==='置顶'}),c=m.category||'灌水闲聊';if(currentCategory!=='全部'&&c!==currentCategory)return'';return'<div class="post-card '+(p?'pinned':'')+'" onclick="viewPost('+is.number+')"><div class="post-title">'+(p?'📌 ':'')+esc(is.title)+'</div><div class="post-meta"><div><span class="post-category">'+esc(c)+'</span><span style="margin-left:8px">'+esc(m.author||'匿名')+'</span></div><div class="post-stats"><span>👍 '+(is.reactions?(is.reactions['+1']||0):0)+'</span><span>'+timeAgo(is.created_at)+'</span></div></div></div>'}).filter(Boolean).join('');if(!l.innerHTML.trim())l.innerHTML='<div class="empty-state">当前分类暂无帖子</div>'}catch(e){document.getElementById('postList').innerHTML='<div class="empty-state">⚠️ 加载失败</div>'}}
+function filterCategory(c){currentCategory=c;document.querySelectorAll('.category-btn').forEach(function(b){b.classList.toggle('active',b.dataset.cat===c)});loadPosts()}
+async function viewPost(n){currentPostId=n;try{var is=await gh('GET','/repos/'+REPO+'/issues/'+n),cm=await gh('GET','/repos/'+REPO+'/issues/'+n+'/comments?per_page=100'),m=parseMeta(is.body),p=is.labels.some(function(x){return x.name==='置顶'}),a=m.author||'匿名';document.getElementById('page-home').style.display='none';document.getElementById('page-post').style.display='block';var ab='';if(currentUser&&currentUser.isAdmin){ab='<button class="btn btn-small btn-success" onclick="togglePin('+is.number+')">'+(p?'取消置顶':'置顶')+'</button><button class="btn btn-small btn-danger" onclick="deletePost('+is.number+')">删除</button>';if(a!==ADMIN_NICK&&a!=='匿名'){ab+=isMuted(a)?'<button class="btn btn-small" style="background:#9c27b0;color:#fff" onclick="doUnmute(\''+esc(a)+'\')">解除禁言</button>':'<button class="btn btn-small" style="background:#ff9800;color:#fff" onclick="doMute(\''+esc(a)+'\')">禁言此用户</button>'}}var mt=isMuted(a)?' <span style="color:#e53935;font-size:12px">🚫 已禁言</span>':'';document.getElementById('postDetail').innerHTML='<div class="detail-title">'+esc(is.title)+'</div><div class="detail-meta"><span>👤 '+esc(a)+mt+'</span><span class="post-category">'+esc(m.category||'灌水闲聊')+'</span><span>🕐 '+timeAgo(is.created_at)+'</span></div><div class="detail-content">'+esc(m.content||'')+'</div><div class="post-actions"><button class="like-btn" onclick="likePost('+is.number+')">👍 '+(is.reactions?(is.reactions['+1']||0):0)+'</button>'+ab+'</div><div class="comments-section"><div class="comments-title">评论 ('+(cm?cm.length:0)+')</div>'+(cm&&cm.length>0?cm.map(function(c){var pm=parseMeta(c.body);return'<div class="comment-item"><div class="comment-header"><span class="comment-author">'+esc(pm.author||'匿名')+'</span><span class="comment-time">'+timeAgo(c.created_at)+'</span></div><div class="comment-content">'+esc(pm.content||c.body)+'</div></div>'}).join(''):'<div style="color:#555;font-size:13px">暂无评论</div>')+'</div>';document.getElementById('commentArea').style.display=(currentUser&&currentUser.isApproved)?'block':'none';window.scrollTo(0,0)}catch(e){alert('加载失败：'+e.message)}}
+function goHome(){document.getElementById('page-home').style.display='block';document.getElementById('page-post').style.display='none';document.getElementById('page-admin').style.display='none';currentPostId=null;loadPosts()}
+async function likePost(n){try{await gh('POST','/repos/'+REPO+'/issues/'+n+'/reactions',{content:'+1'});viewPost(n)}catch(e){alert('操作失败')}}
+async function submitPost(){if(!currentUser||!currentUser.isApproved)return alert('请先登录');if(isMuted(currentUser.nickname))return alert('你已被禁言');var t=document.getElementById('postTitle').value.trim(),c=document.getElementById('postContent').value.trim(),cat=document.getElementById('postCategory').value;if(!t||!c){document.getElementById('postError').textContent='请填写标题和内容';return}var b=JSON.stringify({type:'post',content:c,author:currentUser.nickname,category:cat,timestamp:Date.now()});try{await gh('POST','/repos/'+REPO+'/issues',{title:t,body:b,labels:['帖子',cat]});closeModal('newPostModal');document.getElementById('postTitle').value='';document.getElementById('postContent').value='';document.getElementById('postError').textContent='';loadPosts()}catch(e){document.getElementById('postError').textContent='发布失败：'+e.message}}
+async function submitComment(){if(!currentUser||!currentUser.isApproved)return alert('请先登录');if(isMuted(currentUser.nickname))return alert('你已被禁言');var c=document.getElementById('commentInput').value.trim();if(!c)return alert('评论不能为空');var b=JSON.stringify({type:'comment',author:currentUser.nickname,content:c,timestamp:Date.now()});try{await gh('POST','/repos/'+REPO+'/issues/'+currentPostId+'/comments',{body:b});document.getElementById('commentInput').value='';viewPost(currentPostId)}catch(e){alert('评论失败')}}
+async function doRegister(){var n=document.getElementById('regNickname').value.trim(),p=document.getElementById('regPassword').value,r=document.getElementById('regReason').value.trim();if(!n||n.length<2){document.getElementById('regError').textContent='昵称至少2个字';return}if(!p||p.length<4){document.getElementById('regError').textContent='密码至少4位';return}if(!r){document.getElementById('regError').textContent='请填写申请理由';return}document.getElementById('regError').textContent='正在提交...';var h=await hashPassword(p),b=JSON.stringify({type:'register',nickname:n,passwordHash:h,reason:r,timestamp:Date.now()});try{await gh('POST','/repos/'+REPO+'/issues',{title:'[申请注册] '+n,body:b,labels:['注册申请']});closeModal('registerModal');alert('注册申请已提交！');document.getElementById('regError').textContent=''}catch(e){document.getElementById('regError').textContent='提交失败：'+e.message}}
+async function doLogin(){var n=document.getElementById('loginUser').value.trim(),p=document.getElementById('loginPass').value;if(!n){document.getElementById('loginError').textContent='请输入昵称';return}if(!p){document.getElementById('loginError').textContent='请输入密码';return}if(n===ADMIN_NICK){var ah=await hashPassword(p),sh=localStorage.getItem('wuqi_admin_pwd');if(sh&&sh!==ah){document.getElementById('loginError').textContent='管理员密码错误';return}if(!sh)localStorage.setItem('wuqi_admin_pwd',ah);currentUser={nickname:ADMIN_NICK,isAdmin:true,isApproved:true};localStorage.setItem('wuqi_user',JSON.stringify(currentUser));updateAuthUI();closeModal('loginModal');document.getElementById('loginError').textContent='';return}if(isMuted(n)){document.getElementById('loginError').textContent='该账号已被禁言';return}try{var i=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=已批准&per_page=100'),f=null;for(var j=0;j<i.length;j++){var m=parseMeta(i[j].body);if(m.nickname===n){f=i[j];break}}if(!f){document.getElementById('loginError').textContent='未找到已批准的账号';return}var meta=parseMeta(f.body),ih=await hashPassword(p);if(meta.passwordHash!==ih){document.getElementById('loginError').textContent='密码错误';return}currentUser={nickname:n,isAdmin:false,isApproved:true,issueNumber:f.number};localStorage.setItem('wuqi_user',JSON.stringify(currentUser));updateAuthUI();closeModal('loginModal');document.getElementById('loginError').textContent=''}catch(e){document.getElementById('loginError').textContent='登录失败'}}
+function logout(){currentUser=null;localStorage.removeItem('wuqi_user');updateAuthUI();if(currentPostId)goHome()}
+function showDeleteAccount(){if(!currentUser||currentUser.isAdmin)return alert('管理员不能注销');document.getElementById('deleteModal').style.display='flex'}
+async function doDeleteAccount(){if(!currentUser||currentUser.isAdmin)return;var p=document.getElementById('deletePass').value;if(!p){document.getElementById('deleteError').textContent='请输入密码';return}try{var i=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=已批准&per_page=100'),f=null;for(var j=0;j<i.length;j++)if(parseMeta(i[j].body).nickname===currentUser.nickname){f=i[j];break}if(!f){document.getElementById('deleteError').textContent='账号未找到';return}var m=parseMeta(f.body),ih=await hashPassword(p);if(m.passwordHash!==ih){document.getElementById('deleteError').textContent='密码错误';return}var b=JSON.stringify({type:'delete_request',nickname:currentUser.nickname,userIssue:f.number,timestamp:Date.now()});await gh('POST','/repos/'+REPO+'/issues',{title:'[注销申请] '+currentUser.nickname,body:b,labels:['注销申请']});closeModal('deleteModal');alert('注销申请已提交');logout()}catch(e){document.getElementById('deleteError').textContent='提交失败：'+e.message}}
+async function showAdminPanel(){if(!currentUser||!currentUser.isAdmin)return;document.getElementById('page-home').style.display='none';document.getElementById('page-post').style.display='none';document.getElementById('page-admin').style.display='block';document.getElementById('adminContent').innerHTML='<div style="text-align:center;padding:40px;color:#aaa">加载中...</div>';try{var ri=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=注册申请&per_page=50&sort=created&direction=desc'),di=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=注销申请&per_page=50&sort=created&direction=desc'),ai=await gh('GET','/repos/'+REPO+'/issues?state=open&labels=已批准&per_page=100'),h='';h+='<div class="admin-tabs"><button class="admin-tab active" onclick="showTab(\'reg\',this)">📋 注册审核('+(ri?ri.length:0)+')</button><button class="admin-tab" onclick="showTab(\'del\',this)">🗑️ 注销审核('+(di?di.length:0)+')</button><button class="admin-tab" onclick="showTab(\'acc\',this)">👤 已注册('+(ai?ai.length:0)+')</button></div>';h+='<div id="tab-reg" class="admin-tab-content">';if(!ri||ri.length===0)h+='<div class="empty-state" style="padding:20px">暂无注册申请</div>';else for(var x=0;x<ri.length;x++){var is=ri[x],m=parseMeta(is.body);h+='<div class="post-card" style="border-left:3px solid #ff9800"><div class="post-title">'+esc(is.title)+'</div><div style="margin-top:8px;font-size:13px;color:#bbb"><div>昵称：<b style="color:#fff">'+esc(m.nickname||'未知')+'</b></div><div>理由：'+esc(m.reason||'无')+'</div><div>时间：'+timeAgo(is.created_at)+'</div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-small btn-success" onclick="doApproveUser('+is.number+')">✅ 批准</button><button class="btn btn-small btn-danger" onclick="doRejectUser('+is.number+')">❌ 拒绝</button></div></div>'}h+='</div>';h+='<div id="tab-del" class="admin-tab-content" style="display:none">';if(!di||di.length===0)h+='<div class="empty-state" style="padding:20px">暂无注销申请</div>';else for(var y=0;y<di.length;y++){var d=di[y],dm=parseMeta(d.body);h+='<div class="post-card" style="border-left:3px solid #e53935"><div class="post-title">'+esc(d.title)+'</div><div style="margin-top:8px;font-size:13px;color:#bbb"><div>昵称：<b style="color:#fff">'+esc(dm.nickname||'未知')+'</b></div><div>时间：'+timeAgo(d.created_at)+'</div></div><div style="margin-top:12px;display:flex;gap:8px"><button class="btn btn-small btn-success" onclick="doApproveDelete('+d.number+','+(dm.userIssue||'null')+')">✅ 批准</button><button class="btn btn-small btn-danger" onclick="doRejectUser('+d.number+')">❌ 拒绝</button></div></div>'}h+='</div>';h+='<div id="tab-acc" class="admin-tab-content" style="display:none">';if(!ai||ai.length===0)h+='<div class="empty-state" style="padding:20px">暂无已注册账号</div>';else for(var z=0;z<ai.length;z++){var a=ai[z],am=parseMeta(a.body),ms=isMuted(am.nickname)?'<span style="color:#e53935">🚫 已禁言</span>':'<span style="color:#4CAF50">正常</span>';h+='<div class="post-card" style="border-left:3px solid #4CAF50;cursor:default"><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="post-title">'+esc(am.nickname||'未知')+' '+ms+'</div><div style="margin-top:4px;font-size:12px;color:#bbb">注册时间：'+timeAgo(a.created_at)+'</div></div><div>';if(am.nickname!==ADMIN_NICK)h+=isMuted(am.nickname)?'<button class="btn btn-small btn-success" onclick="doUnmute(\''+esc(am.nickname)+'\')">解除禁言</button>':'<button class="btn btn-small" style="background:#ff9800;color:#fff" onclick="doMute(\''+esc(am.nickname)+'\')">禁言</button>';h+='</div></div></div>'}h+='</div>';document.getElementById('adminContent').innerHTML=h}catch(e){document.getElementById('adminContent').innerHTML='<div class="empty-state">⚠️ 加载失败</div>'}}
+function showTab(t,btn){document.querySelectorAll('.admin-tab-content').forEach(function(e){e.style.display='none'});document.querySelectorAll('.admin-tab').forEach(function(e){e.classList.remove('active')});document.getElementById('tab-'+t).style.display='block';btn.classList.add('active')}
+async function doApproveUser(n){try{var i=await gh('GET','/repos/'+REPO+'/issues/'+n),l=i.labels.map(function(x){return x.name}).filter(function(x){return x!=='注册申请'});l.push('已批准');await gh('PATCH','/repos/'+REPO+'/issues/'+n,{labels:l});alert('已批准');showAdminPanel()}catch(e){alert('失败：'+e.message)}}
+async function doRejectUser(n){if(!confirm('确定拒绝？'))return;try{await gh('PATCH','/repos/'+REPO+'/issues/'+n,{state:'closed'});alert('已拒绝');showAdminPanel()}catch(e){alert('失败：'+e.message)}}
+async function doApproveDelete(n,ui){if(!confirm('确定批准注销？'))return;try{if(ui&&ui!=='null')await gh('PATCH','/repos/'+REPO+'/issues/'+ui,{state:'closed'});await gh('PATCH','/repos/'+REPO+'/issues/'+n,{state:'closed'});alert('已批准');showAdminPanel()}catch(e){alert('失败：'+e.message)}}
+async function doMute(n){if(!confirm('确定禁言「'+n+'」？'))return;if(mutedUsers.indexOf(n)===-1){mutedUsers.push(n);await saveMutedList()}alert('已禁言');if(document.getElementById('page-admin').style.display==='block')showAdminPanel();else if(currentPostId)viewPost(currentPostId)}
+async function doUnmute(n){if(!confirm('确定解除「'+n+'」的禁言？'))return;mutedUsers=mutedUsers.filter(function(x){return x!==n});await saveMutedList();alert('已解除禁言');if(document.getElementById('page-admin').style.display==='block')showAdminPanel();else if(currentPostId)viewPost(currentPostId)}
+async function togglePin(n){try{var i=await gh('GET','/repos/'+REPO+'/issues/'+n),p=i.labels.some(function(x){return x.name==='置顶'}),l=i.labels.map(function(x){return x.name}).filter(function(x){return x!=='置顶'});if(!p)l.push('置顶');await gh('PATCH','/repos/'+REPO+'/issues/'+n,{labels:l});viewPost(n)}catch(e){alert('操作失败')}}
+async function deletePost(n){if(!confirm('确定删除？'))return;try{await gh('PATCH','/repos/'+REPO+'/issues/'+n,{state:'closed'});goHome()}catch(e){alert('删除失败')}}
+function showLogin(){document.getElementById('loginModal').style.display='flex'}
+function showRegister(){document.getElementById('registerModal').style.display='flex'}
+function showNewPost(){if(!currentUser||!currentUser.isApproved)return showLogin();if(isMuted(currentUser.nickname))return alert('你已被禁言');document.getElementById('newPostModal').style.display='flex'}
+function closeModal(id){document.getElementById(id).style.display='none'}
+function parseMeta(b){if(!b)return{};try{return JSON.parse(b)}catch(e){return{content:b}}}
+function esc(s){if(!s)return'';var d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function timeAgo(s){if(!s)return'';var d=Math.floor((Date.now()-new Date(s))/1000);if(d<60)return'刚刚';if(d<3600)return Math.floor(d/60)+'分钟前';if(d<86400)return Math.floor(d/3600)+'小时前';return Math.floor(d/86400)+'天前'}
+init();
+</script>
+</body>
+</html>
