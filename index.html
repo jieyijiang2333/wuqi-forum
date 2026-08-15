@@ -15,70 +15,44 @@
         }
 
         .hero {
-            position: relative;
-            padding: 80px 20px 50px;
+            padding: 36px 20px 24px;
             text-align: center;
             background: linear-gradient(135deg, #1a0a2e 0%, #0d1b2a 50%, #0a0a0a 100%);
-            overflow: hidden;
         }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 50%, rgba(139,92,246,0.08) 0%, transparent 50%),
-                        radial-gradient(circle at 70% 50%, rgba(59,130,246,0.06) 0%, transparent 50%);
-            animation: float 20s ease-in-out infinite;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-20px); }
-        }
-
-        .hero-content { position: relative; z-index: 1; }
 
         .studio-name {
-            font-size: 48px;
+            font-size: 42px;
             font-weight: 700;
             letter-spacing: 8px;
             background: linear-gradient(135deg, #c084fc, #818cf8, #60a5fa);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
-        .studio-sub { font-size: 14px; color: #666; letter-spacing: 4px; }
-
-        .divider {
-            width: 60px; height: 2px;
-            background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
-            margin: 40px auto;
-        }
+        .studio-sub { font-size: 13px; color: #666; letter-spacing: 4px; }
 
         .container {
             max-width: 1000px;
             margin: 0 auto;
-            padding: 0 20px 60px;
+            padding: 24px 16px 50px;
         }
 
         .section-title {
-            font-size: 13px;
+            font-size: 12px;
             letter-spacing: 3px;
             color: #555;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
         .app-card {
             background: linear-gradient(145deg, #141414, #1a1a1a);
             border: 1px solid #222;
-            border-radius: 16px;
-            padding: 32px;
-            margin-bottom: 20px;
-            transition: all 0.3s;
+            border-radius: 14px;
+            padding: 22px;
+            margin-bottom: 14px;
             position: relative;
             overflow: hidden;
         }
@@ -89,12 +63,8 @@
             top: 0; left: 0; right: 0;
             height: 2px;
             background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            opacity: 0;
-            transition: opacity 0.3s;
         }
 
-        .app-card:hover { border-color: #333; transform: translateY(-2px); }
-        .app-card:hover::before { opacity: 1; }
         .app-card:nth-child(1) { --accent: #8b5cf6; }
         .app-card:nth-child(2) { --accent: #3b82f6; }
         .app-card:nth-child(3) { --accent: #f97316; }
@@ -102,64 +72,99 @@
         .app-header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 16px;
+            align-items: center;
+            margin-bottom: 10px;
         }
 
-        .app-name { font-size: 22px; font-weight: 600; color: #fff; }
+        .app-name { font-size: 18px; font-weight: 600; color: #fff; }
 
         .app-tag {
-            font-size: 11px;
-            padding: 4px 10px;
-            border-radius: 20px;
-            background: rgba(249,115,22,0.12);
+            font-size: 10px;
+            padding: 3px 8px;
+            border-radius: 12px;
+            background: rgba(139,92,246,0.12);
             color: var(--accent);
-            border: 1px solid rgba(249,115,22,0.2);
-            white-space: nowrap;
+            border: 1px solid rgba(139,92,246,0.2);
         }
 
         .app-desc {
-            font-size: 14px;
-            color: #888;
-            line-height: 1.7;
-            margin-bottom: 24px;
+            font-size: 13px;
+            color: #777;
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
 
         .version-row {
             display: flex;
-            gap: 16px;
-            margin-bottom: 20px;
+            gap: 10px;
+            margin-bottom: 14px;
         }
 
         .version-box {
             flex: 1;
             background: #0f0f0f;
-            border-radius: 10px;
-            padding: 14px 16px;
+            border-radius: 8px;
+            padding: 10px 12px;
         }
 
-        .version-label { font-size: 11px; color: #555; letter-spacing: 1px; margin-bottom: 6px; }
+        .version-label { font-size: 10px; color: #555; letter-spacing: 1px; margin-bottom: 4px; }
 
         .version-number {
-            font-size: 20px;
+            font-size: 17px;
             font-weight: 700;
             color: #fff;
             font-family: 'SF Mono', 'Fira Code', monospace;
         }
 
-        .progress-section { margin-bottom: 14px; }
+        .sponsor-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 14px;
+            padding: 8px 12px;
+            background: rgba(251,191,36,0.06);
+            border: 1px solid rgba(251,191,36,0.12);
+            border-radius: 8px;
+        }
+
+        .sponsor-icon { font-size: 12px; }
+
+        .sponsor-text { font-size: 11px; color: #888; }
+
+        .sponsor-ver {
+            font-family: 'SF Mono', 'Fira Code', monospace;
+            font-weight: 700;
+            color: #fbbf24;
+            font-size: 13px;
+        }
+
+        .sponsor-badge {
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: rgba(251,191,36,0.15);
+            color: #fbbf24;
+            margin-left: 2px;
+        }
+
+        .progress-row {
+            display: flex;
+            gap: 14px;
+        }
+
+        .progress-section { flex: 1; }
 
         .progress-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
 
-        .progress-label { font-size: 12px; color: #666; }
-        .progress-value { font-size: 12px; color: #999; font-weight: 600; }
+        .progress-label { font-size: 11px; color: #555; }
+        .progress-value { font-size: 11px; color: #888; font-weight: 600; }
 
         .progress-bar {
-            height: 6px;
+            height: 5px;
             background: #2a2a2a;
             border-radius: 3px;
             overflow: hidden;
@@ -168,55 +173,38 @@
         .progress-fill {
             height: 100%;
             border-radius: 3px;
-            transition: width 1s ease;
         }
 
         .fill-accent {
             background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 50%, white));
         }
 
-        .fill-green {
-            background: linear-gradient(90deg, #22c55e, #4ade80);
-        }
-
-        .fill-yellow {
-            background: linear-gradient(90deg, #eab308, #facc15);
-        }
-
-        .fill-orange {
-            background: linear-gradient(90deg, #f97316, #fb923c);
-        }
-
-        .fill-gray {
-            background: linear-gradient(90deg, #444, #555);
-        }
+        .fill-green { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .fill-yellow { background: linear-gradient(90deg, #eab308, #facc15); }
+        .fill-orange { background: linear-gradient(90deg, #f97316, #fb923c); }
+        .fill-gray { background: linear-gradient(90deg, #444, #555); }
 
         .footer {
             text-align: center;
-            padding: 40px 20px;
+            padding: 30px 20px;
             border-top: 1px solid #1a1a1a;
         }
 
-        .footer-text { font-size: 12px; color: #333; letter-spacing: 2px; }
+        .footer-text { font-size: 11px; color: #333; letter-spacing: 2px; }
 
         @media (max-width: 600px) {
-            .studio-name { font-size: 32px; letter-spacing: 4px; }
-            .app-header { flex-direction: column; gap: 10px; }
-            .version-row { flex-direction: column; gap: 10px; }
-            .app-card { padding: 24px; }
+            .studio-name { font-size: 30px; letter-spacing: 4px; }
+            .version-row { flex-direction: column; gap: 8px; }
+            .progress-row { flex-direction: column; gap: 10px; }
         }
     </style>
 </head>
 <body>
 
 <div class="hero">
-    <div class="hero-content">
-        <div class="studio-name">AEON</div>
-        <div class="studio-sub">S T U D I O</div>
-    </div>
+    <div class="studio-name">AEON</div>
+    <div class="studio-sub">S T U D I O</div>
 </div>
-
-<div class="divider"></div>
 
 <div class="container">
     <div class="section-title">— 软件开发进度 —</div>
@@ -227,9 +215,7 @@
             <div class="app-name">无期：记账本</div>
             <div class="app-tag">同人作品</div>
         </div>
-        <div class="app-desc">
-            无期迷途同人记账应用。支持基础记账功能，内置禁闭者角色主题切换，可设置专属禁闭者语录。
-        </div>
+        <div class="app-desc">无期迷途同人记账应用。支持基础记账功能，内置禁闭者角色主题切换，可设置专属禁闭者语录。</div>
         <div class="version-row">
             <div class="version-box">
                 <div class="version-label">当前版本</div>
@@ -240,22 +226,30 @@
                 <div class="version-number">1.330.0</div>
             </div>
         </div>
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-label">版本更新进度</span>
-                <span class="progress-value">45%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill fill-accent" style="width:45%"></div>
-            </div>
+        <div class="sponsor-row">
+            <span class="sponsor-icon">☕</span>
+            <span class="sponsor-text">赞助体验版</span>
+            <span class="sponsor-ver">2.0.0</span>
+            <span class="sponsor-badge">逐步发版</span>
         </div>
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-label">底层重构进度</span>
-                <span class="progress-value">5%</span>
+        <div class="progress-row">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">版本更新</span>
+                    <span class="progress-value">45%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-accent" style="width:45%"></div>
+                </div>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill fill-yellow" style="width:5%"></div>
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">底层重构</span>
+                    <span class="progress-value">5%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-yellow" style="width:5%"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -266,9 +260,7 @@
             <div class="app-name">局长终端</div>
             <div class="app-tag" style="background:rgba(59,130,246,0.12);color:#3b82f6;border-color:rgba(59,130,246,0.2);">重构中</div>
         </div>
-        <div class="app-desc">
-            与禁闭者实时聊天，查看禁闭者动态朋友圈。支持读取局长个人健康数据，包括睡眠、步数等信息。
-        </div>
+        <div class="app-desc">与禁闭者实时聊天，查看禁闭者动态朋友圈。支持读取局长个人健康数据，包括睡眠、步数等信息。</div>
         <div class="version-row">
             <div class="version-box">
                 <div class="version-label">当前版本</div>
@@ -279,22 +271,30 @@
                 <div class="version-number">1.8.0</div>
             </div>
         </div>
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-label">版本更新进度</span>
-                <span class="progress-value">90%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill fill-accent" style="width:90%"></div>
-            </div>
+        <div class="sponsor-row">
+            <span class="sponsor-icon">☕</span>
+            <span class="sponsor-text">赞助体验版</span>
+            <span class="sponsor-ver">1.9.0</span>
+            <span class="sponsor-badge">逐步发版</span>
         </div>
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-label">底层重构进度</span>
-                <span class="progress-value">90%</span>
+        <div class="progress-row">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">版本更新</span>
+                    <span class="progress-value">90%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-accent" style="width:90%"></div>
+                </div>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill fill-green" style="width:90%"></div>
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">底层重构</span>
+                    <span class="progress-value">90%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-green" style="width:90%"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -305,9 +305,7 @@
             <div class="app-name">无期：人格鉴定</div>
             <div class="app-tag" style="background:rgba(249,115,22,0.12);color:#f97316;border-color:rgba(249,115,22,0.2);">新发布</div>
         </div>
-        <div class="app-desc">
-            完成人格测试后，基于官方七维属性面板匹配与你最契合的禁闭者人格。
-        </div>
+        <div class="app-desc">完成人格测试后，基于官方七维属性面板匹配与你最契合的禁闭者人格。</div>
         <div class="version-row">
             <div class="version-box">
                 <div class="version-label">当前版本</div>
@@ -318,22 +316,30 @@
                 <div class="version-number">1.1.0</div>
             </div>
         </div>
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-label">版本更新进度</span>
-                <span class="progress-value">20%</span>
-            </div>
-            <div class="progress-bar">
-                <div class="progress-fill fill-orange" style="width:20%"></div>
-            </div>
+        <div class="sponsor-row">
+            <span class="sponsor-icon">☕</span>
+            <span class="sponsor-text">赞助体验版</span>
+            <span class="sponsor-ver">1.1.0</span>
+            <span class="sponsor-badge">逐步发版</span>
         </div>
-        <div class="progress-section">
-            <div class="progress-header">
-                <span class="progress-label">底层重构进度</span>
-                <span class="progress-value">未开始</span>
+        <div class="progress-row">
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">版本更新</span>
+                    <span class="progress-value">20%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-orange" style="width:20%"></div>
+                </div>
             </div>
-            <div class="progress-bar">
-                <div class="progress-fill fill-gray" style="width:0%"></div>
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">底层重构</span>
+                    <span class="progress-value">未开始</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill fill-gray" style="width:0%"></div>
+                </div>
             </div>
         </div>
     </div>
